@@ -66,6 +66,11 @@
   :type 'integer
   :group 'snakemake)
 
+(defcustom snakemake-compile-command-options nil
+  "Flags to add to default Snakemake compilation command."
+  :group 'snakemake
+  :type '(repeat string))
+
 
 ;;; Regexp
 
@@ -214,7 +219,9 @@ indentation is determined by the location within the rule block.
   "Mode for editing Snakemake files."
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
   (font-lock-add-keywords nil snakemake-font-lock-keywords)
-  (set (make-local-variable 'compile-command) "snakemake"))
+  (set (make-local-variable 'compile-command)
+       (mapconcat 'identity
+                  (cons "snakemake" snakemake-compile-command-options) " ")))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile" . snakemake-mode))
