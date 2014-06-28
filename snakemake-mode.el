@@ -194,13 +194,6 @@ indentation is determined by the location within the rule block.
 
 ;;; Mode
 
-;;;###autoload
-(define-derived-mode snakemake-mode python-mode "Snakemake"
-  "Mode for editing Snakemake files."
-  (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
-  (font-lock-add-keywords nil snakemake-font-lock-keywords)
-  (set (make-local-variable 'compile-command) "snakemake"))
-
 (defvar snakemake-font-lock-keywords
   `((,snakemake-rule-line-re (1 font-lock-keyword-face)
                              (2 font-lock-function-name-face))
@@ -215,6 +208,13 @@ indentation is determined by the location within the rule block.
   (setq imenu-generic-expression `((nil ,snakemake-rule-line-re 2))))
 
 (add-hook 'snakemake-mode-hook 'snakemake-set-imenu-generic-expression)
+
+;;;###autoload
+(define-derived-mode snakemake-mode python-mode "Snakemake"
+  "Mode for editing Snakemake files."
+  (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
+  (font-lock-add-keywords nil snakemake-font-lock-keywords)
+  (set (make-local-variable 'compile-command) "snakemake"))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile" . snakemake-mode))
