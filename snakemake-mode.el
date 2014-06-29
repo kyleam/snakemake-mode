@@ -180,10 +180,12 @@ indentation is determined by the location within the rule block.
 
 (defun snakemake-run-subrule-line-p ()
   (save-excursion
-    (forward-line -1)
-    (end-of-line)
-    (save-match-data
-      (re-search-backward snakemake-subrule-indented-re nil t)
+    (let ((rule-start (save-excursion
+                        (end-of-line)
+                        (re-search-backward snakemake-rule-re nil t))))
+      (forward-line -1)
+      (end-of-line)
+      (re-search-backward snakemake-subrule-indented-re rule-start t)
       (string= (match-string 1) "run"))))
 
 (defun snakemake-previous-subrule-value-column ()
