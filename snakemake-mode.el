@@ -144,6 +144,7 @@ indentation is determined by the location within the rule block.
         (delete-horizontal-space)
         (indent-to snakemake-indent-subrule-offset))
        ((snakemake-run-subrule-first-line-p)
+        (delete-horizontal-space)
         (indent-to (+ snakemake-indent-subrule-offset
                       snakemake-indent-run-offset)))
        ((snakemake-run-subrule-line-p)
