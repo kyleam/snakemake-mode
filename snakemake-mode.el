@@ -101,12 +101,17 @@
 
 (defun snakemake-indent-line ()
   "Indent the current line.
-
 Outside of rule blocks, indentation is handled as it would be in
 a Python mode buffer (using `python-indent-line-function').
-
 Inside rule blocks (or on a blank line directly below),
-indentation is determined by the location within the rule block.
+`snakemake-indent-rule-line' is called."
+  (interactive)
+  (if (snakemake-in-rule-block-p)
+      (snakemake-indent-rule-line)
+    (python-indent-line-function)))
+
+(defun snakemake-indent-rule-line ()
+  "Indent rule line.
 
 - At the top of rule block
 
@@ -128,12 +133,6 @@ indentation is determined by the location within the rule block.
   Alternate between no indentation,
   `snakemake-indent-subrule-offset', and the column of the
   previous subrule value."
-  (interactive)
-  (if (snakemake-in-rule-block-p)
-      (snakemake-indent-rule-line)
-    (python-indent-line-function)))
-
-(defun snakemake-indent-rule-line ()
   (save-excursion
     (let ((start-indent (current-indentation)))
       (beginning-of-line)
@@ -162,7 +161,7 @@ indentation is determined by the location within the rule block.
       (forward-to-indentation 0)))
 
 (defun snakemake-in-rule-block-p ()
-  "Point is in or on blank line following a rule block."
+  "Point is in rule block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
     (when (looking-at "^ *$")
@@ -173,6 +172,7 @@ indentation is determined by the location within the rule block.
            (not (re-search-forward "^ *$" start t))))))
 
 (defun snakemake-run-subrule-first-line-p ()
+  "Point is on the first line below a run subrule."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
@@ -180,6 +180,10 @@ indentation is determined by the location within the rule block.
       t)))
 
 (defun snakemake-run-subrule-line-p ()
+  "Point is on any line below a run subrule.
+This function assumes that `snakemake-in-rule-block-p' is true.
+If it's not, it will give the wrong answer if below a rule block
+whose last subrule is run."
   (save-excursion
     (let ((rule-start (save-excursion
                         (end-of-line)
@@ -190,6 +194,10 @@ indentation is determined by the location within the rule block.
       (string= (match-string 1) "run"))))
 
 (defun snakemake-previous-subrule-value-column ()
+  "Get column for previous subrule value.
+If directly below a subrule key, this corresponds to the column
+for the first non-blank character after 'key:'. Otherwise, it is
+the column of the first non-blank character."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
@@ -211,7 +219,8 @@ indentation is determined by the location within the rule block.
     (,snakemake-subrule-indented-re 1 font-lock-type-face)))
 
 (defun snakemake-set-imenu-generic-expression ()
-  ;; Disable `python-info-current-defun'.
+  "Extract rule names for `imenu' index."
+  ;; Disable `python-info-current-defun'
   (setq imenu-extract-index-name-function nil)
   (setq imenu-create-index-function 'imenu-default-create-index-function)
   (setq imenu-generic-expression `((nil ,snakemake-rule-line-re 2))))
