@@ -224,9 +224,9 @@ indentation is determined by the location within the rule block.
                   (cons "snakemake" snakemake-compile-command-options) " ")))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("Snakefile" . snakemake-mode))
+(add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.smrules" . snakemake-mode))
+(add-to-list 'auto-mode-alist '("\\.smrules\\'" . snakemake-mode))
 
 (provide 'snakemake-mode)
 
