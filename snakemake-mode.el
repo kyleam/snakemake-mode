@@ -57,13 +57,13 @@
   :type 'hook
   :group 'snakemake)
 
-(defcustom snakemake-indent-subrule-offset 4
-  "Offset for subrule indentation."
+(defcustom snakemake-indent-field-offset 4
+  "Offset for field indentation."
   :type 'integer
   :group 'snakemake)
 
 (defcustom snakemake-indent-run-offset 2
-  "Additional offset for 'run' subrule value."
+  "Additional offset for 'run' field value."
   :type 'integer
   :group 'snakemake)
 
@@ -84,13 +84,14 @@
 (defconst snakemake-toplevel-command-re "^\\(include\\|workdir\\):"
   "Regexp matching other toplevel commands aside from 'rule'.")
 
-(defconst snakemake-subrule-re
+(defconst snakemake-field-key-re
   (concat "\\(input\\|output\\|shell\\|run\\|workdir\\|priority"
           "\\|message\\|threads\\|versions\\|resources\\|params\\):")
-  "Regexp matching a subrule key.")
+  "Regexp matching a rule field key.")
 
-(defconst snakemake-subrule-indented-re (concat  "^[ \t]+" snakemake-subrule-re)
-  "Regexp matching a subrule key, including indentation.")
+(defconst snakemake-field-key-indented-re
+  (concat  "^[ \t]+" snakemake-field-key-re)
+  "Regexp matching a field key, including indentation.")
 
 (defconst snakemake-builtin-function-re
   "\\(expand\\|shell\\|protected\\|temp\\|dynamic\\)("
@@ -117,42 +118,42 @@ Inside rule blocks (or on a blank line directly below),
 
   All indentation is removed.
 
-- At a rule subkey ('input', 'output',...)
+- At a rule field key ('input', 'output',...)
 
-  The line is indented to `snakemake-indent-subrule-offset'.
+  The line is indented to `snakemake-indent-field-offset'.
 
 - Below a 'run' subkey
 
   The first line below 'run' will be indented to
-  `snakemake-indent-subrule-offset' plus
+  `snakemake-indent-field-offset' plus
   `snakemake-indent-run-offset'. Other lines are indented with
   `python-indent-line-function'.
 
 - Otherwise
 
   Alternate between no indentation,
-  `snakemake-indent-subrule-offset', and the column of the
-  previous subrule value."
+  `snakemake-indent-field-offset', and the column of the previous
+  field value."
   (save-excursion
     (let ((start-indent (current-indentation)))
       (beginning-of-line)
       (cond
        ((looking-at (concat "^[ \t]*" snakemake-rule-re))
         (delete-horizontal-space))
-       ((looking-at (concat "^[ \t]*" snakemake-subrule-re))
+       ((looking-at (concat "^[ \t]*" snakemake-field-key-re))
         (delete-horizontal-space)
-        (indent-to snakemake-indent-subrule-offset))
-       ((snakemake-run-subrule-first-line-p)
+        (indent-to snakemake-indent-field-offset))
+       ((snakemake-run-field-first-line-p)
         (delete-horizontal-space)
-        (indent-to (+ snakemake-indent-subrule-offset
+        (indent-to (+ snakemake-indent-field-offset
                       snakemake-indent-run-offset)))
-       ((snakemake-run-subrule-line-p)
+       ((snakemake-run-field-line-p)
         (python-indent-line-function))
-       ((< start-indent snakemake-indent-subrule-offset)
+       ((< start-indent snakemake-indent-field-offset)
         (delete-horizontal-space)
-        (indent-to snakemake-indent-subrule-offset))
+        (indent-to snakemake-indent-field-offset))
        (t
-        (let ((prev-col (snakemake-previous-subrule-value-column)))
+        (let ((prev-col (snakemake-previous-field-value-column)))
           (when prev-col
             (delete-horizontal-space)
             (when (< start-indent prev-col)
@@ -160,8 +161,8 @@ Inside rule blocks (or on a blank line directly below),
   (if (< (current-column) (current-indentation))
       (forward-to-indentation 0)))
 
-(defun snakemake-in-rule-block-p ()
-  "Point is in rule block or on first blank line following one."
+(defun snakemake-in-rule-or-subworkflow-block-p ()
+  "Point is in block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
     (when (looking-at "^ *$")
@@ -171,39 +172,40 @@ Inside rule blocks (or on a blank line directly below),
       (and (re-search-backward snakemake-rule-re nil t)
            (not (re-search-forward "^ *$" start t))))))
 
-(defun snakemake-run-subrule-first-line-p ()
-  "Point is on the first line below a run subrule."
+(defun snakemake-run-field-first-line-p ()
+  "Point is on the first line below a run field key."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
     (when (re-search-forward "^[ \t]+run:" (point-at-eol) t)
       t)))
 
-(defun snakemake-run-subrule-line-p ()
-  "Point is on any line below a run subrule.
-This function assumes that `snakemake-in-rule-block-p' is true.
-If it's not, it will give the wrong answer if below a rule block
-whose last subrule is run."
+(defun snakemake-run-field-line-p ()
+  "Point is on any line below a run field key.
+This function assumes that
+`snakemake-in-rule-or-subworkflow-block-p' is true. If it's not,
+it will give the wrong answer if below a rule block whose last
+field is run."
   (save-excursion
     (let ((rule-start (save-excursion
                         (end-of-line)
                         (re-search-backward snakemake-rule-re nil t))))
       (forward-line -1)
       (end-of-line)
-      (re-search-backward snakemake-subrule-indented-re rule-start t)
+      (re-search-backward snakemake-field-key-indented-re rule-start t)
       (string= (match-string 1) "run"))))
 
-(defun snakemake-previous-subrule-value-column ()
-  "Get column for previous subrule value.
-If directly below a subrule key, this corresponds to the column
-for the first non-blank character after 'key:'. Otherwise, it is
-the column of the first non-blank character."
+(defun snakemake-previous-field-value-column ()
+  "Get column for previous field value.
+If directly below a field key, this corresponds to the column for
+the first non-blank character after 'key:'. Otherwise, it is the
+column of the first non-blank character."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
-    ;; Because of multiline subrules, the previous line may not have a
+    ;; Because of multiline fields, the previous line may not have a
     ;; key.
-    (let ((rule-re (concat "\\(?:" snakemake-subrule-indented-re
+    (let ((rule-re (concat "\\(?:" snakemake-field-key-indented-re
                            "\\)* *[^ ]")))
       (if (re-search-forward rule-re (point-at-eol) t)
           (1- (current-column))))))
@@ -216,7 +218,7 @@ the column of the first non-blank character."
                              (2 font-lock-function-name-face))
     (,snakemake-toplevel-command-re 1 font-lock-keyword-face)
     (,snakemake-builtin-function-re 1 font-lock-builtin-face)
-    (,snakemake-subrule-indented-re 1 font-lock-type-face)))
+    (,snakemake-field-key-indented-re 1 font-lock-type-face)))
 
 (defun snakemake-set-imenu-generic-expression ()
   "Extract rule names for `imenu' index."
