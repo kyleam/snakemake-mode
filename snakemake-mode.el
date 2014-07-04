@@ -75,19 +75,22 @@
 
 ;;; Regexp
 
-(defconst snakemake-rule-re "\\(rule\\) \\([a-zA-Z0-9_]+\\):"
-  "Regexp matching a rule.")
+(defconst snakemake-rule-or-subworkflow-re
+  "\\(rule\\|subworkflow\\) \\([a-zA-Z0-9_]+\\):"
+  "Regexp matching a rule or subworkflow.")
 
-(defconst snakemake-rule-line-re (concat "^" snakemake-rule-re)
-  "Regexp matching a rule at start of line.")
+(defconst snakemake-rule-or-subworkflow-line-re
+  (concat "^" snakemake-rule-or-subworkflow-re)
+  "Regexp matching a rule or subworkflow at start of line.")
 
 (defconst snakemake-toplevel-command-re "^\\(include\\|workdir\\):"
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
   (concat "\\(input\\|output\\|shell\\|run\\|workdir\\|priority"
-          "\\|message\\|threads\\|versions\\|resources\\|params\\):")
-  "Regexp matching a rule field key.")
+          "\\|message\\|threads\\|versions\\|resources\\|params"
+          "\\|snakefile\\):")
+  "Regexp matching a rule or subworkflow field key.")
 
 (defconst snakemake-field-key-indented-re
   (concat  "^[ \t]+" snakemake-field-key-re)
@@ -107,7 +110,7 @@ a Python mode buffer (using `python-indent-line-function').
 Inside rule blocks (or on a blank line directly below),
 `snakemake-indent-rule-line' is called."
   (interactive)
-  (if (snakemake-in-rule-block-p)
+  (if (snakemake-in-rule-or-subworkflow-block-p)
       (snakemake-indent-rule-line)
     (python-indent-line-function)))
 
@@ -138,7 +141,7 @@ Inside rule blocks (or on a blank line directly below),
     (let ((start-indent (current-indentation)))
       (beginning-of-line)
       (cond
-       ((looking-at (concat "^[ \t]*" snakemake-rule-re))
+       ((looking-at (concat "^[ \t]*" snakemake-rule-or-subworkflow-re))
         (delete-horizontal-space))
        ((looking-at (concat "^[ \t]*" snakemake-field-key-re))
         (delete-horizontal-space)
@@ -169,7 +172,7 @@ Inside rule blocks (or on a blank line directly below),
       (forward-line -1))
     (end-of-line)
     (let ((start (point)))
-      (and (re-search-backward snakemake-rule-re nil t)
+      (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
            (not (re-search-forward "^ *$" start t))))))
 
 (defun snakemake-run-field-first-line-p ()
@@ -189,7 +192,8 @@ field is 'run'."
   (save-excursion
     (let ((rule-start (save-excursion
                         (end-of-line)
-                        (re-search-backward snakemake-rule-re nil t))))
+                        (re-search-backward snakemake-rule-or-subworkflow-re
+                                            nil t))))
       (forward-line -1)
       (end-of-line)
       (re-search-backward snakemake-field-key-indented-re rule-start t)
@@ -214,7 +218,7 @@ column of the first non-blank character."
 ;;; Mode
 
 (defvar snakemake-font-lock-keywords
-  `((,snakemake-rule-line-re (1 font-lock-keyword-face)
+  `((,snakemake-rule-or-subworkflow-line-re (1 font-lock-keyword-face)
                              (2 font-lock-function-name-face))
     (,snakemake-toplevel-command-re 1 font-lock-keyword-face)
     (,snakemake-builtin-function-re 1 font-lock-builtin-face)
@@ -225,7 +229,8 @@ column of the first non-blank character."
   ;; Disable `python-info-current-defun'
   (setq imenu-extract-index-name-function nil)
   (setq imenu-create-index-function 'imenu-default-create-index-function)
-  (setq imenu-generic-expression `((nil ,snakemake-rule-line-re 2))))
+  (setq imenu-generic-expression
+        `((nil ,snakemake-rule-or-subworkflow-line-re 2))))
 
 (add-hook 'snakemake-mode-hook 'snakemake-set-imenu-generic-expression)
 
