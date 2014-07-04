@@ -185,7 +185,7 @@ Inside rule blocks (or on a blank line directly below),
 This function assumes that
 `snakemake-in-rule-or-subworkflow-block-p' is true. If it's not,
 it will give the wrong answer if below a rule block whose last
-field is run."
+field is 'run'."
   (save-excursion
     (let ((rule-start (save-excursion
                         (end-of-line)
