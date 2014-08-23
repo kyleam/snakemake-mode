@@ -235,14 +235,19 @@ column of the first non-blank character."
 
 (add-hook 'snakemake-mode-hook 'snakemake-set-imenu-generic-expression)
 
+(defun snakemake-compile-command ()
+  "Return Snakemake compile command.
+Flags are taken from `snakemake-compile-command-options'."
+  (mapconcat 'identity
+             (cons "snakemake" snakemake-compile-command-options)
+             " "))
+
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
   "Mode for editing Snakemake files."
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
   (font-lock-add-keywords nil snakemake-font-lock-keywords)
-  (set (make-local-variable 'compile-command)
-       (mapconcat 'identity
-                  (cons "snakemake" snakemake-compile-command-options) " ")))
+  (set (make-local-variable 'compile-command) (snakemake-compile-command)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
