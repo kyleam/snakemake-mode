@@ -67,6 +67,11 @@
   :type 'integer
   :group 'snakemake)
 
+(defcustom snakemake-executable "snakemake"
+  "Snakemake executable to use in compile command."
+  :group 'snakemake
+  :type 'string)
+
 (defcustom snakemake-compile-command-options nil
   "Flags to add to default Snakemake compilation command."
   :group 'snakemake
@@ -239,7 +244,7 @@ column of the first non-blank character."
   "Return Snakemake compile command.
 Flags are taken from `snakemake-compile-command-options'."
   (mapconcat 'identity
-             (cons "snakemake" snakemake-compile-command-options)
+             (cons snakemake-executable snakemake-compile-command-options)
              " "))
 
 ;;;###autoload
