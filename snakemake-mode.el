@@ -221,6 +221,16 @@ column of the first non-blank character."
           (1- (current-column))))))
 
 
+;;; Compilation
+
+(defun snakemake-compile-command ()
+  "Return Snakemake compile command.
+Flags are taken from `snakemake-compile-command-options'."
+  (mapconcat 'identity
+             (cons snakemake-executable snakemake-compile-command-options)
+             " "))
+
+
 ;;; Mode
 
 (defvar snakemake-font-lock-keywords
@@ -239,13 +249,6 @@ column of the first non-blank character."
         `((nil ,snakemake-rule-or-subworkflow-line-re 2))))
 
 (add-hook 'snakemake-mode-hook 'snakemake-set-imenu-generic-expression)
-
-(defun snakemake-compile-command ()
-  "Return Snakemake compile command.
-Flags are taken from `snakemake-compile-command-options'."
-  (mapconcat 'identity
-             (cons snakemake-executable snakemake-compile-command-options)
-             " "))
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
