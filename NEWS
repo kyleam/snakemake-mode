@@ -7,6 +7,9 @@
 - Both the executable and flags for the Snakemake `compile-command' are
   now customizable.
 
+- New command `snakemake-compile-rule' runs Snakemake with the rule at
+  point as the target.
+
 - Subworkflow blocks are now supported.
 
 - The 'ruleorder' keyword is now recognized.
