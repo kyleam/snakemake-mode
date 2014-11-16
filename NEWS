@@ -1,0 +1,12 @@
+# -*- mode: org -*-
+
+* Master (unreleased)
+
+** New features
+
+- Both the executable and flags for the Snakemake `compile-command' are
+  now customizable.
+
+- Subworkflow blocks are now supported.
+
+- The 'ruleorder' keyword is now recognized.
