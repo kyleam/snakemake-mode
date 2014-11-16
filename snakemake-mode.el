@@ -230,8 +230,43 @@ Flags are taken from `snakemake-compile-command-options'."
              (cons snakemake-executable snakemake-compile-command-options)
              " "))
 
+(defun snakemake-compile-rule (jobs)
+  "Run Snakemake with the rule at point as the target.
+
+The numeric prefix JOBS controls the number of jobs that
+Snakemake runs (defaults to 1). If JOBS is zero, perform a dry
+run.
+
+Customize `snakemake-executable' and
+`snakemake-compile-command-options' to control the compilation
+command."
+  (interactive "p")
+  (unless (snakemake-in-rule-or-subworkflow-block-p)
+    (user-error "Not in rule block"))
+  (save-excursion
+    (end-of-line)
+    (re-search-backward snakemake-rule-or-subworkflow-re)
+    (let ((block-type (match-string-no-properties 1))
+          (rule-name (match-string-no-properties 2)))
+      (pcase block-type
+        ("rule"
+         (let* ((job-flag (if (zerop jobs)
+                              " -n "
+                            (format " -j%s " jobs)))
+                (compile-command (concat (snakemake-compile-command) job-flag
+                                         rule-name)))
+           (call-interactively #'compile)))
+        ("subworkflow" (user-error "Cannot compile a subworkflow"))))))
+
 
 ;;; Mode
+
+(defvar snakemake-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map python-mode-map)
+    (define-key map (kbd "C-c C-b") 'snakemake-compile-rule)
+    map)
+  "Keymap for `snakemake-mode'.")
 
 (defvar snakemake-font-lock-keywords
   `((,snakemake-rule-or-subworkflow-line-re (1 font-lock-keyword-face)
@@ -252,7 +287,12 @@ Flags are taken from `snakemake-compile-command-options'."
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
-  "Mode for editing Snakemake files."
+  "Mode for editing Snakemake files.
+
+\\<snakemake-mode-map>\
+Type \\[snakemake-compile-rule] to run Snakemake with the rule of
+the block at point as the target.
+\n\\{snakemake-mode-map}"
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
   (font-lock-add-keywords nil snakemake-font-lock-keywords)
   (set (make-local-variable 'compile-command) (snakemake-compile-command)))
