@@ -270,7 +270,7 @@ command."
 
 (defvar snakemake-font-lock-keywords
   `((,snakemake-rule-or-subworkflow-line-re (1 font-lock-keyword-face)
-                             (2 font-lock-function-name-face))
+                                            (2 font-lock-function-name-face))
     (,snakemake-toplevel-command-re 1 font-lock-keyword-face)
     (,snakemake-builtin-function-re 1 font-lock-builtin-face)
     (,snakemake-field-key-indented-re 1 font-lock-type-face)))
