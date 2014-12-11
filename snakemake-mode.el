@@ -186,8 +186,8 @@ Inside rule blocks (or on a blank line directly below),
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
-    (when (re-search-forward "^[ \t]+run:" (point-at-eol) t)
-      t)))
+    (and (re-search-forward "^[ \t]+run:" (point-at-eol) t)
+         t)))
 
 (defun snakemake-run-field-line-p ()
   "Point is on any line below a run field key.
