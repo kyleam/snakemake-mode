@@ -23,12 +23,12 @@
 
 ;;; Commentary:
 
-;; Snakemake mode provides support for editing Snakemake [1] files. It
+;; Snakemake mode provides support for editing Snakemake [1] files.  It
 ;; builds on Python mode to provide fontification, indentation, and
 ;; imenu indexing for Snakemake's rule blocks.
 ;;
 ;; If Snakemake mode is installed from MELPA, no additional setup is
-;; required. It will be loaded the first time a file named 'Snakefile'
+;; required.  It will be loaded the first time a file named 'Snakefile'
 ;; is opened.
 ;;
 ;; Otherwise, put snakemake-mode.el in your `load-path' and add
@@ -135,7 +135,7 @@ Inside rule blocks (or on a blank line directly below),
 
   The first line below 'run' will be indented to
   `snakemake-indent-field-offset' plus
-  `snakemake-indent-run-offset'. Other lines are indented with
+  `snakemake-indent-run-offset'.  Other lines are indented with
   `python-indent-line-function'.
 
 - Otherwise
@@ -192,7 +192,7 @@ Inside rule blocks (or on a blank line directly below),
 (defun snakemake-run-field-line-p ()
   "Point is on any line below a run field key.
 This function assumes that
-`snakemake-in-rule-or-subworkflow-block-p' is true. If it's not,
+`snakemake-in-rule-or-subworkflow-block-p' is true.  If it's not,
 it will give the wrong answer if below a rule block whose last
 field is 'run'."
   (save-excursion
@@ -208,7 +208,7 @@ field is 'run'."
 (defun snakemake-previous-field-value-column ()
   "Get column for previous field value.
 If directly below a field key, this corresponds to the column for
-the first non-blank character after 'key:'. Otherwise, it is the
+the first non-blank character after 'key:'.  Otherwise, it is the
 column of the first non-blank character."
   (save-excursion
     (forward-line -1)
@@ -234,7 +234,7 @@ Flags are taken from `snakemake-compile-command-options'."
   "Run Snakemake with the rule at point as the target.
 
 The numeric prefix JOBS controls the number of jobs that
-Snakemake runs (defaults to 1). If JOBS is zero, perform a dry
+Snakemake runs (defaults to 1).  If JOBS is zero, perform a dry
 run.
 
 Customize `snakemake-executable' and
@@ -303,5 +303,9 @@ the block at point as the target.
 (add-to-list 'auto-mode-alist '("\\.smrules\\'" . snakemake-mode))
 
 (provide 'snakemake-mode)
+
+;; Local variables:
+;; sentence-end-double-space: t
+;; End:
 
 ;;; snakemake-mode.el ends here
