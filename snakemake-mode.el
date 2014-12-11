@@ -54,18 +54,18 @@
 
 (defcustom snakemake-mode-hook nil
   "Hook run when entering `snakemake-mode'."
-  :type 'hook
-  :group 'snakemake)
+  :group 'snakemake
+  :type 'hook)
 
 (defcustom snakemake-indent-field-offset 4
   "Offset for field indentation."
-  :type 'integer
-  :group 'snakemake)
+  :group 'snakemake
+  :type 'integer)
 
 (defcustom snakemake-indent-run-offset 2
   "Additional offset for 'run' field value."
-  :type 'integer
-  :group 'snakemake)
+  :group 'snakemake
+  :type 'integer)
 
 (defcustom snakemake-executable "snakemake"
   "Snakemake executable to use in compile command."
