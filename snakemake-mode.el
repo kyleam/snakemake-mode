@@ -206,9 +206,14 @@ block whose last field is 'run'."
 
 (defun snakemake-previous-field-value-column ()
   "Get column for previous field value.
+
 If directly below a field key, this corresponds to the column for
 the first non-blank character after 'key:'.  Otherwise, it is the
-column of the first non-blank character."
+column of the first non-blank character.
+
+This function assumes that the previous line is a field value (in
+other words, that point is at or beyond the third line of a rule
+or subworkflow block."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
