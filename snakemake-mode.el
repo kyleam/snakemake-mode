@@ -167,8 +167,8 @@ rule blocks (or on a blank line directly below), call
             (delete-horizontal-space)
             (when (< start-indent prev-col)
               (indent-to prev-col))))))))
-  (if (< (current-column) (current-indentation))
-      (forward-to-indentation 0)))
+  (when (< (current-column) (current-indentation))
+    (forward-to-indentation 0)))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
   "Return t if point is in block or on first blank line following one."
@@ -217,8 +217,8 @@ column of the first non-blank character."
     ;; key.
     (let ((rule-re (concat "\\(?:" snakemake-field-key-indented-re
                            "\\)* *[^ ]")))
-      (if (re-search-forward rule-re (point-at-eol) t)
-          (1- (current-column))))))
+      (when (re-search-forward rule-re (point-at-eol) t)
+        (1- (current-column))))))
 
 
 ;;; Compilation
