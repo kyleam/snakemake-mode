@@ -111,10 +111,10 @@
 
 (defun snakemake-indent-line ()
   "Indent the current line.
-Outside of rule blocks, indentation is handled as it would be in
-a Python mode buffer (using `python-indent-line-function').
-Inside rule blocks (or on a blank line directly below),
-`snakemake-indent-rule-line' is called."
+Outside of rule blocks, handle indentation as it would be in a
+Python mode buffer (using `python-indent-line-function').  Inside
+rule blocks (or on a blank line directly below), call
+`snakemake-indent-rule-line'."
   (interactive)
   (if (snakemake-in-rule-or-subworkflow-block-p)
       (snakemake-indent-rule-line)
@@ -125,17 +125,17 @@ Inside rule blocks (or on a blank line directly below),
 
 - At the top of rule block
 
-  All indentation is removed.
+  Remove all indentation.
 
 - At a rule field key ('input', 'output',...)
 
-  The line is indented to `snakemake-indent-field-offset'.
+  Indent the line to `snakemake-indent-field-offset'.
 
 - Below a 'run' subkey
 
-  The first line below 'run' will be indented to
+  Indent the first line below 'run'
   `snakemake-indent-field-offset' plus
-  `snakemake-indent-run-offset'.  Other lines are indented with
+  `snakemake-indent-run-offset'.  Ident other lines with
   `python-indent-line-function'.
 
 - Otherwise
@@ -171,7 +171,7 @@ Inside rule blocks (or on a blank line directly below),
       (forward-to-indentation 0)))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
-  "Point is in block or on first blank line following one."
+  "Return t if point is in block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
     (when (looking-at "^ *$")
@@ -182,7 +182,7 @@ Inside rule blocks (or on a blank line directly below),
            (not (re-search-forward "^ *$" start t))))))
 
 (defun snakemake-run-field-first-line-p ()
-  "Point is on the first line below a run field key."
+  "Return t if point is on the first line below a run field key."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
@@ -190,11 +190,11 @@ Inside rule blocks (or on a blank line directly below),
          t)))
 
 (defun snakemake-run-field-line-p ()
-  "Point is on any line below a run field key.
-This function assumes that
-`snakemake-in-rule-or-subworkflow-block-p' is true.  If it's not,
-it will give the wrong answer if below a rule block whose last
-field is 'run'."
+  "Return t if point is on any line below a run field key.
+This function assumes that point is in a rule or subworkflow
+block (which includes being on a blank line immediately below a
+block).  If it's not, it gives the wrong answer if below a rule
+block whose last field is 'run'."
   (save-excursion
     (let ((rule-start (save-excursion
                         (end-of-line)
