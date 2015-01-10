@@ -147,9 +147,9 @@ rule blocks (or on a blank line directly below), call
     (let ((start-indent (current-indentation)))
       (beginning-of-line)
       (cond
-       ((looking-at (concat "^[ \t]*" snakemake-rule-or-subworkflow-re))
+       ((looking-at-p (concat "^[ \t]*" snakemake-rule-or-subworkflow-re))
         (delete-horizontal-space))
-       ((looking-at (concat "^[ \t]*" snakemake-field-key-re))
+       ((looking-at-p (concat "^[ \t]*" snakemake-field-key-re))
         (delete-horizontal-space)
         (indent-to snakemake-indent-field-offset))
        ((snakemake-run-field-first-line-p)
@@ -174,7 +174,7 @@ rule blocks (or on a blank line directly below), call
   "Return t if point is in block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
-    (when (looking-at "^ *$")
+    (when (looking-at-p "^ *$")
       (forward-line -1))
     (end-of-line)
     (let ((start (point)))
