@@ -1,6 +1,6 @@
 ;;; snakemake-mode.el --- Major mode for editing Snakemake files
 
-;; Copyright (C) 2014 Kyle Meyer
+;; Copyright (C) 2014-2015 Kyle Meyer
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; URL: https://github.com/kyleam/snakemake-mode
