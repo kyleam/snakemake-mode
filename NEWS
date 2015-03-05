@@ -7,6 +7,9 @@
 - The 'configfile' keyword (introduced in Snakemake version 3.1) is
   now recognized.
 
+- The 'onsuccess' and 'onerror' keywords (introduced in Snakemake
+  version 3.2.1) are now recognized.
+
 * v0.2.0
 
 ** New features
