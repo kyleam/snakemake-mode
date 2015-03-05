@@ -1,5 +1,12 @@
 # -*- mode: org -*-
 
+* Master (unreleased)
+
+** New features
+
+- The 'configfile' keyword (introduced in Snakemake version 3.1) is
+  now recognized.
+
 * v0.2.0
 
 ** New features

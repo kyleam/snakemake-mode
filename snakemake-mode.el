@@ -89,7 +89,7 @@
   "Regexp matching a rule or subworkflow at start of line.")
 
 (defconst snakemake-toplevel-command-re
-  "^\\(include\\|workdir\\|ruleorder\\):"
+  "^\\(include\\|workdir\\|ruleorder\\|configfile\\):"
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
