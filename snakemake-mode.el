@@ -172,7 +172,7 @@ rule blocks (or on a blank line directly below), call
     (forward-to-indentation 0)))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
-  "Return t if point is in block or on first blank line following one."
+  "Return non-nil if point is in block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
     (when (looking-at-p "^ *$")
@@ -183,14 +183,14 @@ rule blocks (or on a blank line directly below), call
            (not (re-search-forward "^ *$" start t))))))
 
 (defun snakemake-run-field-first-line-p ()
-  "Return t if point is on the first line below a run field key."
+  "Return non-nil if point is on the first line below a run field key."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
     (looking-at-p "^[ \t]+run:")))
 
 (defun snakemake-run-field-line-p ()
-  "Return t if point is on any line below a run field key.
+  "Return non-nil if point is on any line below a run field key.
 This function assumes that point is in a rule or subworkflow
 block (which includes being on a blank line immediately below a
 block).  If it's not, it gives the wrong answer if below a rule
