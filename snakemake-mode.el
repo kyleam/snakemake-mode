@@ -136,7 +136,7 @@ rule blocks (or on a blank line directly below), call
 
   Indent the first line below 'run'
   `snakemake-indent-field-offset' plus
-  `snakemake-indent-run-offset'.  Ident other lines with
+  `snakemake-indent-run-offset'.  Indent other lines with
   `python-indent-line-function'.
 
 - Otherwise
