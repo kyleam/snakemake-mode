@@ -30,6 +30,12 @@ help:
 	@printf "\nOther:\n\n"
 	@printf "  clean              Remove generated files.\n"
 	@printf "  help               Print this message.\n"
+	@printf "  test               Run tests.\n"
+
+.PHONY: test
+test: $(main_elc)
+	@$(EMACS) -L . -l test-snakemake-mode \
+	--eval "(ert-run-tests-batch-and-exit '(not (tag interactive)))"
 
 %.elc: %.el
 	@$(EMACS) -f batch-byte-compile $<
