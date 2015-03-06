@@ -120,6 +120,37 @@ rule abc:
      (snakemake-indent-line)
      (buffer-string))))
 
+  ;; Below a naked rule field key
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        "
+    (snakemake-with-temp-text
+     "
+rule abc:
+    output:
+<point>"
+     (snakemake-indent-line)
+     (buffer-string))))
+
+  ;; Below a naked rule field key, repeated
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        "
+    (snakemake-with-temp-text
+     "
+rule abc:
+    output:
+<point>"
+     (snakemake-indent-line)
+     (snakemake-indent-line)
+     (buffer-string))))
+
   ;; Below a filled rule field key
   (should
    (string=
@@ -246,6 +277,26 @@ subworkflow otherworkflow:
 <point>    workdir: '../path/to/otherworkflow'
     snakefile: '../path/to/otherworkflow/Snakefile'"
    (should (snakemake-in-rule-or-subworkflow-block-p))))
+
+(ert-deftest test-snakemake-mode/below-naked-field-p ()
+  "Test `snakemake-below-naked-field-p'."
+  (snakemake-with-temp-text
+   "
+rule abc:
+    output:
+<point>"
+   (should (snakemake-below-naked-field-p)))
+  (snakemake-with-temp-text
+   "
+rule abc:
+    output: 'file'
+<point>"
+   (should-not (snakemake-below-naked-field-p)))
+  (snakemake-with-temp-text
+   "
+rule abc:
+    output: <point>"
+   (should-not (snakemake-below-naked-field-p))))
 
 (ert-deftest test-snakemake-mode/run-field-line-p ()
   "Test `snakemake-run-field-line-p'."

@@ -62,8 +62,8 @@
   :group 'snakemake
   :type 'integer)
 
-(defcustom snakemake-indent-run-offset 2
-  "Additional offset for 'run' field value."
+(defcustom snakemake-indent-value-offset 4
+  "Offset for field values that the line below the field key."
   :group 'snakemake
   :type 'integer)
 
@@ -132,12 +132,14 @@ rule blocks (or on a blank line directly below), call
 
   Indent the line to `snakemake-indent-field-offset'.
 
-- Below a 'run' subkey
+- On first line below a naked field key.
 
-  Indent the first line below 'run'
-  `snakemake-indent-field-offset' plus
-  `snakemake-indent-run-offset'.  Indent other lines with
-  `python-indent-line-function'.
+  Indent the line with `snakemake-indent-field-offset' plus
+  `snakemake-indent-value-offset'.
+
+- On any 'run' field value line except for the first value line.
+
+  Indent with `python-indent-line-function'.
 
 - Otherwise
 
@@ -153,10 +155,10 @@ rule blocks (or on a blank line directly below), call
        ((looking-at-p (concat "^[ \t]*" snakemake-field-key-re))
         (delete-horizontal-space)
         (indent-to snakemake-indent-field-offset))
-       ((snakemake-run-field-first-line-p)
+       ((snakemake-below-naked-field-p)
         (delete-horizontal-space)
         (indent-to (+ snakemake-indent-field-offset
-                      snakemake-indent-run-offset)))
+                      snakemake-indent-value-offset)))
        ((snakemake-run-field-line-p)
         (python-indent-line-function))
        ((< start-indent snakemake-indent-field-offset)
@@ -182,12 +184,12 @@ rule blocks (or on a blank line directly below), call
       (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
            (not (re-search-forward "^ *$" start t))))))
 
-(defun snakemake-run-field-first-line-p ()
-  "Return non-nil if point is on the first line below a run field key."
+(defun snakemake-below-naked-field-p ()
+  "Return non-nil if point is on first line below a naked field key."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
-    (looking-at-p "^[ \t]+run:")))
+    (looking-at-p (concat snakemake-field-key-indented-re " *$"))))
 
 (defun snakemake-run-field-line-p ()
   "Return non-nil if point is on any line below a run field key.

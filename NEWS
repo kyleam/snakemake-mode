@@ -10,6 +10,11 @@
 - The 'onsuccess' and 'onerror' keywords (introduced in Snakemake
   version 3.2.1) are now recognized.
 
+- Indentation for field values starting on the line below a field key
+  is now supported.  New variable `snakemake-indent-value-offset'
+  controls the offset for the value and replaces the variable
+  `snakemake-indent-run-offset'.
+
 * v0.2.0
 
 ** New features
