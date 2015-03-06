@@ -4,11 +4,8 @@
 
 ** New features
 
-- The 'configfile' keyword (introduced in Snakemake version 3.1) is
-  now recognized.
-
-- The 'onsuccess' and 'onerror' keywords (introduced in Snakemake
-  version 3.2.1) are now recognized.
+- The keywords 'configfile', 'onsuccess', 'onerror', 'log', and
+  'benchmark' are now recognized.
 
 - Indentation for field values starting on the line below a field key
   is now supported.  New variable `snakemake-indent-value-offset'

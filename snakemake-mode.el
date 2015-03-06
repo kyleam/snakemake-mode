@@ -96,7 +96,7 @@
 (defconst snakemake-field-key-re
   (concat "\\(input\\|output\\|shell\\|run\\|workdir\\|priority"
           "\\|message\\|threads\\|versions\\|resources\\|params"
-          "\\|snakefile\\):")
+          "\\|log\\|benchmark\\|snakefile\\):")
   "Regexp matching a rule or subworkflow field key.")
 
 (defconst snakemake-field-key-indented-re
