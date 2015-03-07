@@ -49,10 +49,13 @@ Also, mute messages."
 (def-edebug-spec org-test-with-temp-text (form body))
 
 
-(ert-deftest test-snakemake-mode/indentation ()
-  "Test `snakemake-indent-line'."
+
+;;; Indentation
 
-  ;; At top of rule block
+(ert-deftest test-snakemake-mode/indentation-at-rule-block ()
+  "Test `snakemake-indent-line' at top of rule block."
+
+  ;; Always shift first line of block to column 0.
   (should
    (string=
     "rule abc:"
@@ -60,168 +63,33 @@ Also, mute messages."
         "rule abc:"
       (snakemake-indent-line)
       (buffer-string))))
-
-  ;; At top of rule block, repeated
   (should
    (string=
     "rule abc:"
     (snakemake-with-temp-text
-        "rule abc:"
-      (snakemake-indent-line)
+        "     rule abc:"
       (snakemake-indent-line)
       (buffer-string))))
 
-  ;; Below a rule block
+  ;; Don't move point if beyond column 0.
   (should
    (string=
-    "
-rule abc:
-    "
+    "rule abc:  "
     (snakemake-with-temp-text
-        "
-rule abc:
-<point>"
+        "    rule abc:  <point>"
       (snakemake-indent-line)
       (buffer-string))))
-
-  ;; Below a rule block, repeated
   (should
    (string=
-    "
-rule abc:
-    "
+    "rule "
     (snakemake-with-temp-text
-        "
-rule abc:
-<point>"
+        "    rule <point>abc:  <point>"
       (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
+      (buffer-substring (point-min) (point))))))
 
-  ;; At rule field key.
-  (should
-   (string=
-    "
-rule abc:
-    output:"
-    (snakemake-with-temp-text
-        "
-rule abc:
-<point>output:"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; At rule field key, repeated
-  (should
-   (string=
-    "
-rule abc:
-    output:"
-    (snakemake-with-temp-text
-        "
-rule abc:
-<point>output:"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Below a naked rule field key
-  (should
-   (string=
-    "
-rule abc:
-    output:
-        "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output:
-<point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Below a naked rule field key, repeated
-  (should
-   (string=
-    "
-rule abc:
-    output:
-        "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output:
-<point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Below a filled rule field key
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file'
-    "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file'
-<point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Below a filled rule field key, repeated once
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file'
-            "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file'
-<point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Below a filled rule field key, repeated twice
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file'
-    "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file'
-<point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Body of a run field
-  (should
-   (string=
-    "
-rule abc:
-    run:
-        with this:
-            "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    run:
-        with this:
-<point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Outside a rule block
+(ert-deftest test-snakemake-mode/indentation-outside-rule ()
+  "Test `snakemake-indent-line' outside rule block."
+  ;; Use standard Python mode indentation outside of rule blocks.
   (should
    (string=
     "
@@ -233,6 +101,345 @@ def ok():
 <point>"
       (snakemake-indent-line)
       (buffer-string)))))
+
+(ert-deftest test-snakemake-mode/indentation-field-key ()
+  "Test `snakemake-indent-line' on field key line."
+
+  ;; Always indent first line to `snakemake-indent-field-offset'.
+  ;; Move point to `snakemake-indent-field-offset' if it is before any
+  ;; text on the line.
+  (should
+   (string=
+    "
+rule abc:
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+<point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+<point>"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    text"
+    (snakemake-with-temp-text
+        "
+rule abc:
+text<point>"
+      (snakemake-indent-line)
+      (buffer-substring (point-min) (point)))))
+  (should
+   (string=
+    "
+rule abc:
+    te"
+    (snakemake-with-temp-text
+        "
+rule abc:
+te<point>xt"
+      (snakemake-indent-line)
+      (buffer-substring (point-min) (point)))))
+
+  ;; Always indent field key to `snakemake-indent-field-offset'.
+  ;; Move point to `snakemake-indent-field-offset' if it is before any
+  ;; text on the line.
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    output:"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    input: 'infile'
+<point>output:"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    output:"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    input: 'infile'
+<point>output:"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    output:  "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    input: 'infile'
+output:  <point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    input: 'infile'
+<point>  output:"
+      (snakemake-indent-line)
+      (buffer-substring (point-min) (point))))))
+
+(ert-deftest test-snakemake-mode/indentation-field-value ()
+  "Test `snakemake-indent-line' on field value line."
+
+  ;; Always indent line below naked field key to
+  ;; `snakemake-indent-field-offset' +
+  ;; `snakemake-indent-value-offset'.  Move point to to this position
+  ;; as well if it is before any text on the line.
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+<point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+<point>"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+              <point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+
+  ;; Add step with Python indentation for non-blank lines under naked
+  ;; field keys.  Field keys with values starting on the same line do
+  ;; not use Python indentation because this is invalid syntax in
+  ;; Snakemake.
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file{}{}'.format('one',
+    'two'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file{}{}'.format('one',
+<point>'two'"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        'file{}{}'.format('one',
+                          'two'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+        'file{}{}'.format('one',
+<point>'two'"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output:
+        'file{}{}'.format('one',
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+        'file{}{}'.format('one',
+<point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+
+  ;; On non-naked field key cycle indentation between
+  ;; `snakemake-indent-field-offset' and column of previous field
+  ;; value.  If point is before any text on the line, move it to the
+  ;; start of the text instead.
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+            "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+    'text'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>'text'"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+            'text'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>'text'"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+    'text' "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+'text' <point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+  "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>  'text'"
+      (snakemake-indent-line)
+      (buffer-substring (point-min) (point)))))
+  (should
+   (string=
+    "
+rule abc:
+    output: 'file'
+    'text'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output: 'file'
+<point>  'text'"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
+
+  ;; Indent body of run field according to Python mode.
+  (should
+   (string=
+    "
+rule abc:
+    run:
+        with this:
+            "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    run:
+        with this:
+<point>"
+      (snakemake-indent-line)
+      (buffer-string)))))
+
+
+;;; Other
 
 (ert-deftest test-snakemake-mode/in-rule-block ()
   "Test `snakemake-in-rule-or-subworkflow-block-p'"
@@ -283,6 +490,25 @@ subworkflow otherworkflow:
     snakefile: '../path/to/otherworkflow/Snakefile'"
     (should (snakemake-in-rule-or-subworkflow-block-p))))
 
+(ert-deftest test-snakemake-mode/first-field-line-p ()
+  "Test `snakemake-first-field-line-p'."
+  (snakemake-with-temp-text
+      "
+rule abc:
+<point>"
+    (should (snakemake-first-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+<point>    output: 'file'"
+    (should (snakemake-first-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+    output:
+<point>"
+    (should-not (snakemake-first-field-line-p))))
+
 (ert-deftest test-snakemake-mode/below-naked-field-p ()
   "Test `snakemake-below-naked-field-p'."
   (snakemake-with-temp-text
@@ -302,6 +528,41 @@ rule abc:
 rule abc:
     output: <point>"
     (should-not (snakemake-below-naked-field-p))))
+
+(ert-deftest test-snakemake-mode/naked-field-line-p ()
+  "Test `snakemake-naked-field-line-p'."
+  (snakemake-with-temp-text
+      "
+rule abc:
+    output:
+<point>"
+    (should (snakemake-naked-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+    output:
+        'file',
+         <point>"
+    (should (snakemake-naked-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+    output: <point>"
+    (should (snakemake-naked-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+    output: 'file'
+<point>"
+    (should-not (snakemake-naked-field-line-p)))
+  (snakemake-with-temp-text
+      "
+rule abc:
+    input:
+        'infile'
+    output: 'file'
+<point>"
+    (should-not (snakemake-naked-field-line-p))))
 
 (ert-deftest test-snakemake-mode/run-field-line-p ()
   "Test `snakemake-run-field-line-p'."

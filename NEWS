@@ -10,7 +10,9 @@
 - Indentation for field values starting on the line below a field key
   is now supported.  New variable `snakemake-indent-value-offset'
   controls the offset for the value and replaces the variable
-  `snakemake-indent-run-offset'.
+  `snakemake-indent-run-offset'.  If these values are continued on
+  another line, indentation cycling now includes a step that indents
+  according to Python mode.
 
 * v0.2.0
 

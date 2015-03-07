@@ -122,13 +122,16 @@ rule blocks (or on a blank line directly below), call
     (python-indent-line-function)))
 
 (defun snakemake-indent-rule-line ()
-  "Indent rule line.
+  "Indent line of a rule or subworkflow block.
+
+Indent according the the first case below that is true.
 
 - At the top of rule block
 
   Remove all indentation.
 
-- At a rule field key ('input', 'output',...)
+- At a rule field key ('input', 'output',...) or on the first
+  field line of the block
 
   Indent the line to `snakemake-indent-field-offset'.
 
@@ -139,20 +142,27 @@ rule blocks (or on a blank line directly below), call
 
 - On any 'run' field value line except for the first value line.
 
-  Indent with `python-indent-line-function'.
+  Indent according to Python mode.
+
+- Before the current indentation
+
+  Move point to the current indentation.
 
 - Otherwise
 
-  Alternate between no indentation,
-  `snakemake-indent-field-offset', and the column of the previous
-  field value."
-  (save-excursion
-    (let ((start-indent (current-indentation)))
+  Cycle between indenting to `snakemake-indent-field-offset',
+  indenting to the column of the previous field value.  If within
+  a field value for a naked field key, add a step that indents
+  according to Python mode."
+  (let ((start-col (current-column))
+        (start-indent (current-indentation)))
+    (save-excursion
       (beginning-of-line)
       (cond
        ((looking-at-p (concat "^\\s-*" snakemake-rule-or-subworkflow-re))
         (delete-horizontal-space))
-       ((looking-at-p (concat "^\\s-*" snakemake-field-key-re))
+       ((or (looking-at-p (concat "^\\s-*" snakemake-field-key-re))
+            (snakemake-first-field-line-p))
         (delete-horizontal-space)
         (indent-to snakemake-indent-field-offset))
        ((snakemake-below-naked-field-p)
@@ -161,17 +171,36 @@ rule blocks (or on a blank line directly below), call
                       snakemake-indent-value-offset)))
        ((snakemake-run-field-line-p)
         (python-indent-line-function))
-       ((< start-indent snakemake-indent-field-offset)
-        (delete-horizontal-space)
-        (indent-to snakemake-indent-field-offset))
-       (t
+       ((>= start-col start-indent)
         (let ((prev-col (snakemake-previous-field-value-column)))
           (when prev-col
-            (delete-horizontal-space)
-            (when (< start-indent prev-col)
-              (indent-to prev-col))))))))
-  (when (< (current-column) (current-indentation))
-    (forward-to-indentation 0)))
+            (cond
+             ((and (snakemake-naked-field-line-p)
+                   (or (and (= start-indent 0)
+                            (not (looking-at-p "^\\s-*$")))
+                       (= start-indent prev-col)))
+              (let (last-command)
+                ;; ^ Don't let `python-indent-line' do clever things
+                ;; when indent command is repeated.
+                (python-indent-line-function))
+              (when (= (current-column) start-indent)
+                (delete-horizontal-space)
+                (indent-to snakemake-indent-value-offset)))
+             ((= start-indent snakemake-indent-field-offset)
+              (delete-horizontal-space)
+              (indent-to prev-col))
+             (t
+              (delete-horizontal-space)
+              (indent-to snakemake-indent-field-offset))))))))
+    (when (< (current-column) (current-indentation))
+      (forward-to-indentation 0))))
+
+(defun snakemake-first-field-line-p ()
+  "Return non-nil if point is on first field line of block."
+  (save-excursion
+    (forward-line -1)
+    (beginning-of-line)
+    (looking-at-p (concat snakemake-rule-or-subworkflow-re))))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
   "Return non-nil if point is in block or on first blank line following one."
@@ -190,6 +219,22 @@ rule blocks (or on a blank line directly below), call
     (forward-line -1)
     (beginning-of-line)
     (looking-at-p (concat snakemake-field-key-indented-re "\\s-*$"))))
+
+(defun snakemake-naked-field-line-p ()
+  "Return non-nil if point is on any line of naked field key.
+This function assumes that point is in a rule or subworkflow
+block (which includes being on a blank line immediately below a
+block)."
+  (save-excursion
+    (let ((rule-start (save-excursion
+                        (end-of-line)
+                        (re-search-backward snakemake-rule-or-subworkflow-re
+                                            nil t))))
+      (end-of-line)
+      (and (re-search-backward snakemake-field-key-indented-re
+                               rule-start t)
+           (goto-char (match-end 0))
+           (looking-at-p "\\s-*$")))))
 
 (defun snakemake-run-field-line-p ()
   "Return non-nil if point is on any line below a run field key.
