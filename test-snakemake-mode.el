@@ -24,8 +24,9 @@
 
 ;; This is modified from `org-tests.el' (55c0708).
 (defmacro snakemake-with-temp-text (text &rest body)
-  "Run body in a temporary buffer with Snakemake mode as the
-active mode holding TEXT.  If the string \"<point>\" appears in
+  "Run body in a temporary Snakemake mode buffer.
+
+Fill the buffer with TEXT.  If the string \"<point>\" appears in
 TEXT then remove it and place the point there before running
 BODY, otherwise place the point at the beginning of the inserted
 text."
