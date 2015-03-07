@@ -100,7 +100,7 @@
   "Regexp matching a rule or subworkflow field key.")
 
 (defconst snakemake-field-key-indented-re
-  (concat  "^[ \t]+" snakemake-field-key-re)
+  (concat  "^\\s-+" snakemake-field-key-re)
   "Regexp matching a field key, including indentation.")
 
 (defconst snakemake-builtin-function-re
@@ -150,9 +150,9 @@ rule blocks (or on a blank line directly below), call
     (let ((start-indent (current-indentation)))
       (beginning-of-line)
       (cond
-       ((looking-at-p (concat "^[ \t]*" snakemake-rule-or-subworkflow-re))
+       ((looking-at-p (concat "^\\s-*" snakemake-rule-or-subworkflow-re))
         (delete-horizontal-space))
-       ((looking-at-p (concat "^[ \t]*" snakemake-field-key-re))
+       ((looking-at-p (concat "^\\s-*" snakemake-field-key-re))
         (delete-horizontal-space)
         (indent-to snakemake-indent-field-offset))
        ((snakemake-below-naked-field-p)
@@ -177,19 +177,19 @@ rule blocks (or on a blank line directly below), call
   "Return non-nil if point is in block or on first blank line following one."
   (save-excursion
     (beginning-of-line)
-    (when (looking-at-p "^ *$")
+    (when (looking-at-p "^\\s-*$")
       (forward-line -1))
     (end-of-line)
     (let ((start (point)))
       (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
-           (not (re-search-forward "^ *$" start t))))))
+           (not (re-search-forward "^\\s-*$" start t))))))
 
 (defun snakemake-below-naked-field-p ()
   "Return non-nil if point is on first line below a naked field key."
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
-    (looking-at-p (concat snakemake-field-key-indented-re " *$"))))
+    (looking-at-p (concat snakemake-field-key-indented-re "\\s-*$"))))
 
 (defun snakemake-run-field-line-p ()
   "Return non-nil if point is on any line below a run field key.
@@ -223,7 +223,7 @@ or subworkflow block."
     ;; Because of multiline fields, the previous line may not have a
     ;; key.
     (let ((rule-re (concat "\\(?:" snakemake-field-key-indented-re
-                           "\\)* *[^ ]")))
+                           "\\)*\\s-*\\S-")))
       (when (re-search-forward rule-re (point-at-eol) t)
         (1- (current-column))))))
 
