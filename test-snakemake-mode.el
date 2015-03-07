@@ -52,19 +52,19 @@ text."
    (string=
     "rule abc:"
     (snakemake-with-temp-text
-     "rule abc:"
-     (snakemake-indent-line)
-     (buffer-string))))
+        "rule abc:"
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; At top of rule block, repeated
   (should
    (string=
     "rule abc:"
     (snakemake-with-temp-text
-     "rule abc:"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+        "rule abc:"
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a rule block
   (should
@@ -73,25 +73,25 @@ text."
 rule abc:
     "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
 <point>"
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a rule block, repeated
   (should
    (string=
     "
 rule abc:
-"
+    "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
 <point>"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; At rule field key.
   (should
@@ -100,11 +100,11 @@ rule abc:
 rule abc:
     output:"
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
 <point>output:"
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; At rule field key, repeated
   (should
@@ -113,12 +113,12 @@ rule abc:
 rule abc:
     output:"
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
 <point>output:"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a naked rule field key
   (should
@@ -128,12 +128,12 @@ rule abc:
     output:
         "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     output:
 <point>"
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a naked rule field key, repeated
   (should
@@ -143,13 +143,13 @@ rule abc:
     output:
         "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     output:
 <point>"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a filled rule field key
   (should
@@ -159,12 +159,12 @@ rule abc:
     output: 'file'
     "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     output: 'file'
 <point>"
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a filled rule field key, repeated once
   (should
@@ -174,13 +174,13 @@ rule abc:
     output: 'file'
             "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     output: 'file'
 <point>"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Below a filled rule field key, repeated twice
   (should
@@ -188,16 +188,16 @@ rule abc:
     "
 rule abc:
     output: 'file'
-"
+    "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     output: 'file'
 <point>"
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Body of a run field
   (should
@@ -208,13 +208,13 @@ rule abc:
         with this:
             "
     (snakemake-with-temp-text
-     "
+        "
 rule abc:
     run:
         with this:
 <point>"
-     (snakemake-indent-line)
-     (buffer-string))))
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Outside a rule block
   (should
@@ -223,120 +223,120 @@ rule abc:
 def ok():
     "
     (snakemake-with-temp-text
-     "
+        "
 def ok():
 <point>"
-     (snakemake-indent-line)
-     (buffer-string)))))
+      (snakemake-indent-line)
+      (buffer-string)))))
 
 (ert-deftest test-snakemake-mode/in-rule-block ()
   "Test `snakemake-in-rule-or-subworkflow-block-p'"
 
   ;; At top of block
   (snakemake-with-temp-text
-   "
+      "
 <point>rule abc:
     output: 'file'"
-   (should (snakemake-in-rule-or-subworkflow-block-p)))
+    (should (snakemake-in-rule-or-subworkflow-block-p)))
 
   ;; Body of block
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: <point>'file'"
-   (should (snakemake-in-rule-or-subworkflow-block-p)))
+    (should (snakemake-in-rule-or-subworkflow-block-p)))
 
   ;; First blank line after
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: 'file'
 <point>"
-   (should (snakemake-in-rule-or-subworkflow-block-p)))
+    (should (snakemake-in-rule-or-subworkflow-block-p)))
 
   ;; Second blank line after
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: 'file'
 
 <point>"
-   (should-not (snakemake-in-rule-or-subworkflow-block-p)))
+    (should-not (snakemake-in-rule-or-subworkflow-block-p)))
 
   ;; Before
   (snakemake-with-temp-text
-   "<point>
+      "<point>
 rule abc:
     output: 'file'"
-   (should-not (snakemake-in-rule-or-subworkflow-block-p)))
+    (should-not (snakemake-in-rule-or-subworkflow-block-p)))
 
   ;; Subworkflow
   (snakemake-with-temp-text
-   "
+      "
 subworkflow otherworkflow:
 <point>    workdir: '../path/to/otherworkflow'
     snakefile: '../path/to/otherworkflow/Snakefile'"
-   (should (snakemake-in-rule-or-subworkflow-block-p))))
+    (should (snakemake-in-rule-or-subworkflow-block-p))))
 
 (ert-deftest test-snakemake-mode/below-naked-field-p ()
   "Test `snakemake-below-naked-field-p'."
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output:
 <point>"
-   (should (snakemake-below-naked-field-p)))
+    (should (snakemake-below-naked-field-p)))
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: 'file'
 <point>"
-   (should-not (snakemake-below-naked-field-p)))
+    (should-not (snakemake-below-naked-field-p)))
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: <point>"
-   (should-not (snakemake-below-naked-field-p))))
+    (should-not (snakemake-below-naked-field-p))))
 
 (ert-deftest test-snakemake-mode/run-field-line-p ()
   "Test `snakemake-run-field-line-p'."
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     run:
 <point>"
-   (should (snakemake-run-field-line-p)))
+    (should (snakemake-run-field-line-p)))
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     run:
         with file:
 <point>"
-   (should (snakemake-run-field-line-p)))
+    (should (snakemake-run-field-line-p)))
   (snakemake-with-temp-text
-   "
+      "
 rule abc:
     output: 'file'
 <point>"
-   (should-not (snakemake-run-field-line-p))))
+    (should-not (snakemake-run-field-line-p))))
 
 (ert-deftest test-snakemake-mode/previous-field-value-column ()
   "Test `snakemake-previous-field-value-column'."
   (should (= 12
              (snakemake-with-temp-text
-              "
+                 "
 rule abc:
     output: 'file'
 <point>"
-              (snakemake-previous-field-value-column))))
+               (snakemake-previous-field-value-column))))
   (should (= 12
              (snakemake-with-temp-text
-              "
+                 "
 rule abc:
     output: 'file',
             'another'
 <point>"
-              (snakemake-previous-field-value-column)))))
+               (snakemake-previous-field-value-column)))))
 
 
 (provide 'test-snakemake-mode)
