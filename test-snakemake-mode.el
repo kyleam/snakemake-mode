@@ -19,6 +19,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'snakemake-mode)
 (require 'ert)
 
@@ -29,19 +30,22 @@
 Fill the buffer with TEXT.  If the string \"<point>\" appears in
 TEXT then remove it and place the point there before running
 BODY, otherwise place the point at the beginning of the inserted
-text."
+text.
+
+Also, mute messages."
   (declare (indent 1))
-  `(let ((inside-text (if (stringp ,text) ,text (eval ,text))))
-     (with-temp-buffer
-       (snakemake-mode)
-       (let ((point (string-match "<point>" inside-text)))
-         (if point
-             (progn
-               (insert (replace-match "" nil nil inside-text))
-               (goto-char (1+ (match-beginning 0))))
-           (insert inside-text)
-           (goto-char (point-min))))
-       ,@body)))
+  `(cl-letf (((symbol-function 'message) (lambda (&rest args) nil)))
+     (let ((inside-text (if (stringp ,text) ,text (eval ,text))))
+       (with-temp-buffer
+         (snakemake-mode)
+         (let ((point (string-match "<point>" inside-text)))
+           (if point
+               (progn
+                 (insert (replace-match "" nil nil inside-text))
+                 (goto-char (1+ (match-beginning 0))))
+             (insert inside-text)
+             (goto-char (point-min))))
+         ,@body))))
 (def-edebug-spec org-test-with-temp-text (form body))
 
 
