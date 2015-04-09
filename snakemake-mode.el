@@ -81,7 +81,10 @@
 ;;; Regexp
 
 (defconst snakemake-rule-or-subworkflow-re
-  "\\(rule\\|subworkflow\\) \\([a-zA-Z0-9_]+\\):"
+  (rx (group symbol-start (or "rule" "subworkflow"))
+      " "
+      (one-or-more (or (syntax word) (syntax symbol)))
+      ":")
   "Regexp matching a rule or subworkflow.")
 
 (defconst snakemake-rule-or-subworkflow-line-re
@@ -89,14 +92,19 @@
   "Regexp matching a rule or subworkflow at start of line.")
 
 (defconst snakemake-toplevel-command-re
-  (concat "^\\(include\\|workdir\\|ruleorder\\|configfile"
-          "\\|onsuccess\\|onerror\\):")
+  (rx line-start
+      (group (or "include" "workdir" "ruleorder" "configfile"
+                 "onsuccess" "onerror"))
+      ":" (zero-or-more space)
+      line-end)
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
-  (concat "\\(input\\|output\\|shell\\|run\\|workdir\\|priority"
-          "\\|message\\|threads\\|version\\|resources\\|params"
-          "\\|log\\|benchmark\\|snakefile\\):")
+  (rx (group symbol-start
+             (or "input" "output" "shell" "run" "workdir" "priority"
+                 "message" "threads" "version" "resources" "params"
+                 "log" "benchmark" "snakefile"))
+      ":")
   "Regexp matching a rule or subworkflow field key.")
 
 (defconst snakemake-field-key-indented-re
@@ -104,7 +112,9 @@
   "Regexp matching a field key, including indentation.")
 
 (defconst snakemake-builtin-function-re
-  "\\(expand\\|shell\\|protected\\|temp\\|dynamic\\)("
+  (rx (group symbol-start
+             (or "expand" "shell" "protected" "temp" "dynamic"))
+      "(")
   "Regexp matching a call to a builtin Snakemake function.")
 
 
