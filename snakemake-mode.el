@@ -346,7 +346,8 @@ Type \\[snakemake-compile-rule] to run Snakemake with the rule of
 the block at point as the target.
 \n\\{snakemake-mode-map}"
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
-  (font-lock-add-keywords nil snakemake-font-lock-keywords)
+  (set (make-local-variable 'font-lock-defaults)
+       `(,(append snakemake-font-lock-keywords python-font-lock-keywords)))
   (set (make-local-variable 'compile-command) (snakemake-compile-command)))
 
 ;;;###autoload
