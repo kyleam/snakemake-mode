@@ -83,7 +83,7 @@
 (defconst snakemake-rule-or-subworkflow-re
   (rx (group symbol-start (or "rule" "subworkflow"))
       " "
-      (one-or-more (or (syntax word) (syntax symbol)))
+      (group (one-or-more (or (syntax word) (syntax symbol))))
       ":")
   "Regexp matching a rule or subworkflow.")
 
@@ -95,8 +95,7 @@
   (rx line-start
       (group (or "include" "workdir" "ruleorder" "configfile"
                  "onsuccess" "onerror"))
-      ":" (zero-or-more space)
-      line-end)
+      ":" (zero-or-more space))
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
