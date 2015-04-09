@@ -105,7 +105,7 @@
 
 (defconst snakemake-builtin-function-re
   "\\(expand\\|shell\\|protected\\|temp\\|dynamic\\)("
-  "Regexp matching a builtin functions.")
+  "Regexp matching a call to a builtin Snakemake function.")
 
 
 ;;; Indentation
