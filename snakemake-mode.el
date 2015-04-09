@@ -200,7 +200,7 @@ Indent according the the first case below that is true.
   (save-excursion
     (forward-line -1)
     (beginning-of-line)
-    (looking-at-p (concat snakemake-rule-or-subworkflow-re))))
+    (looking-at-p snakemake-rule-or-subworkflow-re)))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
   "Return non-nil if point is in block or on first blank line following one."
