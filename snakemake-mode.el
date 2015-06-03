@@ -296,7 +296,7 @@ Flags are taken from `snakemake-compile-command-options'."
 
 The numeric prefix JOBS controls the number of jobs that
 Snakemake runs (defaults to 1).  If JOBS is zero, perform a dry
-run.
+run.  If JOBS is negative, just touch the output files.
 
 Customize `snakemake-executable' and
 `snakemake-compile-command-options' to control the compilation
@@ -311,9 +311,10 @@ command."
           (rule-name (match-string-no-properties 2)))
       (pcase block-type
         ("rule"
-         (let* ((job-flag (if (zerop jobs)
-                              " -n "
-                            (format " -j%s " jobs)))
+         (let* ((job-flag (cond
+                           ((> jobs 0) (format " -j%s " jobs))
+                           ((zerop jobs) " -n ")
+                           (t " -t ")))
                 (compile-command (concat (snakemake-compile-command) job-flag
                                          rule-name)))
            (call-interactively #'compile)))

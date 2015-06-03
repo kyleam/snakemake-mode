@@ -14,6 +14,9 @@
   another line, indentation cycling now includes a step that indents
   according to Python mode.
 
+- `snakemake-compile-rule' can now pass the '--touch' flag to
+  snakemake.
+
 * v0.2.0
 
 ** New features
