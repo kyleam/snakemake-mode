@@ -17,6 +17,9 @@
 - `snakemake-compile-rule' can now pass the '--touch' flag to
   snakemake.
 
+- The Imenu index now includes Python mode items in addition to rule
+  blocks.
+
 * v0.2.0
 
 ** New features

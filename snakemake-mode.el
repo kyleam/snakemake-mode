@@ -321,6 +321,33 @@ command."
         ("subworkflow" (user-error "Cannot compile a subworkflow"))))))
 
 
+;;; Imenu
+
+(defun snakemake-imenu-create-index ()
+  "Create Imenu index for rule blocks.
+If `python-imenu-create-index' returns a non-nil value, also
+include these results and append a \"(rule)\" to the index
+label."
+  (let ((py-index (python-imenu-create-index))
+        (sm-index (snakemake--imenu-build-rule-index)))
+    (if py-index
+        (append (mapcar (lambda (x)
+                          (cons (concat (car x) " (rule)") (cdr x)))
+                        sm-index)
+                py-index)
+      sm-index)))
+
+(defun snakemake--imenu-build-rule-index ()
+  (goto-char (point-min))
+  (let (index)
+    (while (re-search-forward snakemake-rule-or-subworkflow-line-re nil t)
+      (push (cons (match-string-no-properties 2)
+                  (save-excursion (beginning-of-line)
+                                  (point-marker)))
+            index))
+    index))
+
+
 ;;; Mode
 
 (defvar snakemake-mode-map
@@ -337,16 +364,6 @@ command."
     (,snakemake-builtin-function-re 1 font-lock-builtin-face)
     (,snakemake-field-key-indented-re 1 font-lock-type-face)))
 
-(defun snakemake-set-imenu-generic-expression ()
-  "Extract rule names for `imenu' index."
-  ;; Disable `python-info-current-defun'
-  (setq imenu-extract-index-name-function nil)
-  (setq imenu-create-index-function 'imenu-default-create-index-function)
-  (setq imenu-generic-expression
-        `((nil ,snakemake-rule-or-subworkflow-line-re 2))))
-
-(add-hook 'snakemake-mode-hook 'snakemake-set-imenu-generic-expression)
-
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
   "Mode for editing Snakemake files.
@@ -355,6 +372,8 @@ command."
 Type \\[snakemake-compile-rule] to run Snakemake with the rule of
 the block at point as the target.
 \n\\{snakemake-mode-map}"
+  (set (make-local-variable 'imenu-create-index-function)
+       #'snakemake-imenu-create-index)
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords)))
