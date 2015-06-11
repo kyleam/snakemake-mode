@@ -112,7 +112,7 @@
 
 (defconst snakemake-builtin-function-re
   (rx (group symbol-start
-             (or "expand" "shell" "protected" "temp" "dynamic"))
+             (or "expand" "shell" "protected" "temp" "dynamic" "touch"))
       "(")
   "Regexp matching a call to a builtin Snakemake function.")
 
