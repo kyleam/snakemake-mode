@@ -102,7 +102,7 @@
   (rx (group symbol-start
              (or "input" "output" "shell" "run" "workdir" "priority"
                  "message" "threads" "version" "resources" "params"
-                 "log" "benchmark" "snakefile"))
+                 "log" "benchmark" "shadow" "snakefile"))
       ":")
   "Regexp matching a rule or subworkflow field key.")
 
