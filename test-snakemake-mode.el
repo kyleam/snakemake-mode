@@ -475,6 +475,18 @@ rule abc:
 <point>"
     (should-not (snakemake-in-rule-or-subworkflow-block-p)))
 
+
+  ;; Blank line in docstring
+  (snakemake-with-temp-text
+      "
+rule abc:
+     \"\"\"docstring header
+
+     docstring line
+     \"\"\"
+    output: 'file'<point>"
+    (should (snakemake-in-rule-or-subworkflow-block-p)))
+
   ;; Before
   (snakemake-with-temp-text
       "<point>

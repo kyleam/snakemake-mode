@@ -213,14 +213,19 @@ Indent according the the first case below that is true.
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
   "Return non-nil if point is in block or on first blank line following one."
-  (save-excursion
-    (beginning-of-line)
-    (when (looking-at-p "^\\s-*$")
-      (forward-line -1))
-    (end-of-line)
-    (let ((start (point)))
-      (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
-           (not (re-search-forward "^\\s-*$" start t))))))
+  (let ((blank-p (lambda nil
+                   (and (looking-at-p "^\\s-*$")
+                        ;; Ignore newlines in docstrings.
+                        (not (nth 3 (syntax-ppss)))))))
+    (save-excursion
+      (beginning-of-line)
+      (when (funcall blank-p)
+        (forward-line -1))
+      (catch 'in-block
+        (while (not (or (bobp) (funcall blank-p)))
+          (when (looking-at-p snakemake-rule-or-subworkflow-re)
+            (throw 'in-block t))
+          (forward-line -1))))))
 
 (defun snakemake-below-naked-field-p ()
   "Return non-nil if point is on first line below a naked field key."
