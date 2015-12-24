@@ -1,4 +1,4 @@
-;;; snakemake-mode.el --- Major mode for editing Snakemake files
+;;; snakemake-mode.el --- Major mode for editing Snakemake files  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014-2015 Kyle Meyer
 
