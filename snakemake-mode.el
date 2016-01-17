@@ -41,6 +41,7 @@
 
 ;;; Code:
 
+(require 'compile)
 (require 'python)
 
 
@@ -324,6 +325,12 @@ command."
                                          rule-name)))
            (call-interactively #'compile)))
         ("subworkflow" (user-error "Cannot compile a subworkflow"))))))
+
+(add-to-list 'compilation-error-regexp-alist 'snakemake)
+(add-to-list
+ 'compilation-error-regexp-alist-alist
+ '(snakemake . ("^SyntaxError in line \\([0-9]+\\) of \\(.*[^A-z]Snakefile\\):$"
+                2 1)))
 
 
 ;;; Imenu

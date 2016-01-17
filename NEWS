@@ -20,6 +20,8 @@
 - The Imenu index now includes Python mode items in addition to rule
   blocks.
 
+- Errors in Snakefiles are now highlighted in complilation buffers.
+
 * v0.2.0
 
 ** New features
