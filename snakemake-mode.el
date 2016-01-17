@@ -37,7 +37,7 @@
 ;;
 ;; to your initialization file.
 ;;
-;; [1] https://bitbucket.org/johanneskoester/snakemake/wiki/browse/
+;; [1] https://bitbucket.org/snakemake/snakemake/wiki/browse/
 
 ;;; Code:
 
