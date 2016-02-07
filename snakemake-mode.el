@@ -89,16 +89,33 @@
 
 (defconst snakemake-toplevel-command-re
   (rx line-start
-      (group (or "include" "workdir" "ruleorder" "configfile"
-                 "onsuccess" "onerror"))
+      (group (or "configfile"
+                 "include"
+                 "onerror"
+                 "onsuccess"
+                 "ruleorder"
+                 "workdir"))
       ":" (zero-or-more space))
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
   (rx (group symbol-start
-             (or "input" "output" "shell" "run" "workdir" "priority"
-                 "message" "threads" "version" "resources" "params"
-                 "log" "benchmark" "shadow" "snakefile"))
+             (or "benchmark"
+                 "input"
+                 "log"
+                 "message"
+                 "output"
+                 "params"
+                 "priority"
+                 "resources"
+                 "run"
+                 "shadow"
+                 "shell"
+                 "threads"
+                 "version"
+                 ;; Keys for subworkflow blocks
+                 "snakefile"
+                 "workdir"))
       ":")
   "Regexp matching a rule or subworkflow field key.")
 
