@@ -5,8 +5,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 ** New features
 
 - The keywords 'configfile', 'onsuccess', 'onerror', 'log', and
-  'benchmark', 'shadow', as well as the 'touch' function, are now
-  recognized.
+  'benchmark', 'script', 'shadow', as well as the 'touch' function,
+  are now recognized.
 
 - Indentation for field values starting on the line below a field key
   is now supported.  New variable ~snakemake-indent-value-offset~

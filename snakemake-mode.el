@@ -109,6 +109,7 @@
                  "priority"
                  "resources"
                  "run"
+                 "script"
                  "shadow"
                  "shell"
                  "threads"
