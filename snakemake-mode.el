@@ -370,7 +370,7 @@ label."
                   (save-excursion (beginning-of-line)
                                   (point-marker)))
             index))
-    index))
+    (nreverse index)))
 
 
 ;;; Mode
