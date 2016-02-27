@@ -410,9 +410,4 @@ the block at point as the target.
 (add-to-list 'auto-mode-alist '("\\.smrules\\'" . snakemake-mode))
 
 (provide 'snakemake-mode)
-
-;; Local variables:
-;; sentence-end-double-space: t
-;; End:
-
 ;;; snakemake-mode.el ends here
