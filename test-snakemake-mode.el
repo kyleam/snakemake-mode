@@ -46,7 +46,7 @@ Also, mute messages."
              (insert inside-text)
              (goto-char (point-min))))
          ,@body))))
-(def-edebug-spec org-test-with-temp-text (form body))
+(def-edebug-spec snakemake-with-temp-text (form body))
 
 
 
