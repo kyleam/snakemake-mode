@@ -90,9 +90,7 @@ rule dd_subdir:
 
 ;;;; Indentation
 
-(ert-deftest test-snakemake-mode/indentation-at-rule-block ()
-  "Test `snakemake-indent-line' at top of rule block."
-
+(ert-deftest snakemake-test-indent-line/at-rule-block ()
   ;; Always shift first line of block to column 0.
   (should
    (string=
@@ -125,8 +123,7 @@ rule dd_subdir:
       (snakemake-indent-line)
       (buffer-substring (point-min) (point))))))
 
-(ert-deftest test-snakemake-mode/indentation-outside-rule ()
-  "Test `snakemake-indent-line' outside rule block."
+(ert-deftest snakemake-test-indent-line/outside-rule ()
   ;; Use standard Python mode indentation outside of rule blocks.
   (should
    (string=
@@ -140,9 +137,7 @@ def ok():
       (snakemake-indent-line)
       (buffer-string)))))
 
-(ert-deftest test-snakemake-mode/indentation-field-key ()
-  "Test `snakemake-indent-line' on field key line."
-
+(ert-deftest snakemake-test-indent-line/field-key ()
   ;; Always indent first line to `snakemake-indent-field-offset'.
   ;; Move point to `snakemake-indent-field-offset' if it is before any
   ;; text on the line.
@@ -249,9 +244,7 @@ rule abc:
       (snakemake-indent-line)
       (buffer-substring (point-min) (point))))))
 
-(ert-deftest test-snakemake-mode/indentation-field-value ()
-  "Test `snakemake-indent-line' on field value line."
-
+(ert-deftest snakemake-test-indent-line/field-value ()
   ;; Always indent line below naked field key to
   ;; `snakemake-indent-field-offset' +
   ;; `snakemake-indent-value-offset'.  Move point to to this position
@@ -478,9 +471,7 @@ rule abc:
 
 ;;;; Other
 
-(ert-deftest test-snakemake-mode/in-rule-block ()
-  "Test `snakemake-in-rule-or-subworkflow-block-p'"
-
+(ert-deftest snakemake-test-in-rule-or-subworkflow-block-p ()
   ;; At top of block
   (snakemake-with-temp-text
       "
@@ -539,8 +530,7 @@ subworkflow otherworkflow:
     snakefile: '../path/to/otherworkflow/Snakefile'"
     (should (snakemake-in-rule-or-subworkflow-block-p))))
 
-(ert-deftest test-snakemake-mode/first-field-line-p ()
-  "Test `snakemake-first-field-line-p'."
+(ert-deftest snakemake-test-first-field-line-p ()
   (snakemake-with-temp-text
       "
 rule abc:
@@ -558,8 +548,7 @@ rule abc:
 <point>"
     (should-not (snakemake-first-field-line-p))))
 
-(ert-deftest test-snakemake-mode/below-naked-field-p ()
-  "Test `snakemake-below-naked-field-p'."
+(ert-deftest snakemake-test-below-naked-field-p ()
   (snakemake-with-temp-text
       "
 rule abc:
@@ -578,8 +567,7 @@ rule abc:
     output: <point>"
     (should-not (snakemake-below-naked-field-p))))
 
-(ert-deftest test-snakemake-mode/naked-field-line-p ()
-  "Test `snakemake-naked-field-line-p'."
+(ert-deftest snakemake-test-naked-field-line-p ()
   (snakemake-with-temp-text
       "
 rule abc:
@@ -613,8 +601,7 @@ rule abc:
 <point>"
     (should-not (snakemake-naked-field-line-p))))
 
-(ert-deftest test-snakemake-mode/run-field-line-p ()
-  "Test `snakemake-run-field-line-p'."
+(ert-deftest snakemake-test-run-field-line-p ()
   (snakemake-with-temp-text
       "
 rule abc:
@@ -635,8 +622,7 @@ rule abc:
 <point>"
     (should-not (snakemake-run-field-line-p))))
 
-(ert-deftest test-snakemake-mode/previous-field-value-column ()
-  "Test `snakemake-previous-field-value-column'."
+(ert-deftest snakemake-test-previous-field-value-column ()
   (should (= 12
              (snakemake-with-temp-text
                  "
@@ -656,8 +642,7 @@ rule abc:
 
 ;;; snakemake.el
 
-(ert-deftest test-snakemake/snakefile-directory ()
-  "Test `snakemake-snakefile-directory'."
+(ert-deftest snakemake-test-snakefile-directory ()
   (snakemake-with-temp-dir
     (should (equal default-directory (snakemake-snakefile-directory)))
     (let ((topdir default-directory))
@@ -665,22 +650,19 @@ rule abc:
                      (let ((default-directory "subdir"))
                        (snakemake-snakefile-directory)))))))
 
-(ert-deftest test-snakemake/rule-targets ()
-  "Test `snakemake-rule-targets'."
+(ert-deftest snakemake-test-rule-targets ()
   (should
    (equal '("aa" "bb" "dd_subdir")
           (snakemake-with-temp-dir
             (snakemake-rule-targets)))))
 
-(ert-deftest test-snakemake/all-rules ()
-  "Test `snakemake-all-rules'."
+(ert-deftest snakemake-test-all-rules ()
   (should
    (equal '("aa" "bb" "cc_wildcards" "dd_subdir")
           (snakemake-with-temp-dir
             (snakemake-all-rules)))))
 
-(ert-deftest test-snakemake/file-targets ()
-  "Test `snakemake-file-targets'."
+(ert-deftest snakemake-test-file-targets ()
   (should
    (equal
     (and snakemake-file-target-program
@@ -688,8 +670,7 @@ rule abc:
     (snakemake-with-temp-dir
       (snakemake-file-targets)))))
 
-(ert-deftest test-snakemake/check-target ()
-  "Test `snakemake-check-target'."
+(ert-deftest snakemake-test-check-target ()
   (should
    (snakemake-with-temp-dir
      (snakemake-check-target "aa.out")))
@@ -697,8 +678,7 @@ rule abc:
    (snakemake-with-temp-dir
      (snakemake-check-target "aa.out.not-target"))))
 
-(ert-deftest test-snakemake/org-link-file-targets ()
-  "Test `snakemake-org-link-file-targets'."
+(ert-deftest snakemake-test-org-link-file-targets ()
   (should (equal '("/path/to/fname")
                  (with-temp-buffer
                    (org-mode)
@@ -706,8 +686,7 @@ rule abc:
                    (forward-line -1)
                    (snakemake-org-link-file-targets)))))
 
-(ert-deftest test-snakemake/file-targets-at-point ()
-  "Test `snakemake-file-targets-at-point'."
+(ert-deftest snakemake-test-file-targets-at-point ()
   (should
    (equal '("aa.out")
           (snakemake-with-temp-dir
@@ -729,8 +708,7 @@ rule abc:
               (beginning-of-line)
               (snakemake-file-targets-at-point))))))
 
-(ert-deftest test-snakemake/rule-at-point ()
-  "Test `snakemake-rule-targets-at-point'."
+(ert-deftest snakemake-test-rule-at-point ()
   (should
    (equal '("aa")
           (snakemake-with-temp-dir
