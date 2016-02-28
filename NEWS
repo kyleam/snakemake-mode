@@ -1,5 +1,12 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* v0.4.0 (unreleased)
+
+** New features
+
+- New library snakemake.el provides a popup interface for running
+  Snakemake from Emacs.
+
 * v0.3.0
 
 ** New features

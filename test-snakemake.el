@@ -1,4 +1,4 @@
-;;; test-snakemake-mode.el --- Tests for snakemake-mode.el
+;;; test-snakemake.el --- Tests for snakemake{,-mode}.el
 
 ;; Copyright (C) 2015-2016 Kyle Meyer <kyle@kyleam.com>
 
@@ -21,6 +21,7 @@
 
 (require 'cl-lib)
 (require 'snakemake-mode)
+(require 'snakemake)
 (require 'ert)
 
 ;; This is modified from `org-tests.el' (55c0708).
@@ -48,9 +49,46 @@ Also, mute messages."
          ,@body))))
 (def-edebug-spec snakemake-with-temp-text (form body))
 
+(defmacro snakemake-with-temp-dir (&rest body)
+  "Run BODY in a temporary directory with Snakefile.
+`snakemake-test-dir' is bound to top-level directory."
+  (declare (indent 0) (debug t))
+  `(cl-letf (((symbol-function 'message) (lambda (&rest args) nil)))
+     (let* ((snakemake-test-dir (file-name-as-directory
+                                 (make-temp-file "sm-test-dir" t)))
+            (snakemake-root-dir-function `(lambda () ,snakemake-test-dir)))
+       (unwind-protect
+           (let ((default-directory snakemake-test-dir))
+             (mkdir "subdir")
+             (with-temp-file "Snakefile"
+               (insert "\
+
+rule aa:
+    output: \"aa.out\"
+    shell: \"echo aa.content > {output}\"
+
+rule bb:
+    input: \"aa.out\"
+    output: \"bb.out\"
+    shell: \"cat {input} > {output}\"
+
+rule cc_wildcards:
+    input: \"bb.out\"
+    output: \"{name}.outwc\"
+    shell: \"cat {input} > {output}\"
+
+rule dd_subdir:
+    input: \"aa.out\"
+    output: \"subdir/dd.out\"
+    shell: \"cat {input} > {output}\""))
+             ,@body)
+         (delete-directory snakemake-test-dir t)))))
+(def-edebug-spec snakemake-with-temp-dir (body))
 
 
-;;; Indentation
+;;; snakemake-mode.el
+
+;;;; Indentation
 
 (ert-deftest test-snakemake-mode/indentation-at-rule-block ()
   "Test `snakemake-indent-line' at top of rule block."
@@ -438,8 +476,7 @@ rule abc:
       (snakemake-indent-line)
       (buffer-string)))))
 
-
-;;; Other
+;;;; Other
 
 (ert-deftest test-snakemake-mode/in-rule-block ()
   "Test `snakemake-in-rule-or-subworkflow-block-p'"
@@ -616,6 +653,100 @@ rule abc:
 <point>"
                (snakemake-previous-field-value-column)))))
 
+
+;;; snakemake.el
 
-(provide 'test-snakemake-mode)
-;;; test-snakemake-mode.el ends here
+(ert-deftest test-snakemake/snakefile-directory ()
+  "Test `snakemake-snakefile-directory'."
+  (snakemake-with-temp-dir
+    (should (equal default-directory (snakemake-snakefile-directory)))
+    (let ((topdir default-directory))
+      (should (equal topdir
+                     (let ((default-directory "subdir"))
+                       (snakemake-snakefile-directory)))))))
+
+(ert-deftest test-snakemake/rule-targets ()
+  "Test `snakemake-rule-targets'."
+  (should
+   (equal '("aa" "bb" "dd_subdir")
+          (snakemake-with-temp-dir
+            (snakemake-rule-targets)))))
+
+(ert-deftest test-snakemake/file-targets ()
+  "Test `snakemake-file-targets'."
+  (should
+   (equal
+    (and snakemake-file-target-program
+         '("aa.out" "bb.out" "subdir/dd.out"))
+    (snakemake-with-temp-dir
+      (snakemake-file-targets)))))
+
+(ert-deftest test-snakemake/check-target ()
+  "Test `snakemake-check-target'."
+  (should
+   (snakemake-with-temp-dir
+     (snakemake-check-target "aa.out")))
+  (should-not
+   (snakemake-with-temp-dir
+     (snakemake-check-target "aa.out.not-target"))))
+
+(ert-deftest test-snakemake/org-link-file-targets ()
+  "Test `snakemake-org-link-file-targets'."
+  (should (equal '("/path/to/fname")
+                 (with-temp-buffer
+                   (org-mode)
+                   (insert "\n[[file:/path/to/fname][descr]]\n")
+                   (forward-line -1)
+                   (snakemake-org-link-file-targets)))))
+
+(ert-deftest test-snakemake/file-targets-at-point ()
+  "Test `snakemake-file-targets-at-point'."
+  (should
+   (equal '("aa.out")
+          (snakemake-with-temp-dir
+            (with-temp-buffer
+              (insert "aa.out")
+              (beginning-of-line)
+              (snakemake-file-targets-at-point 'check)))))
+  (should-not
+   (snakemake-with-temp-dir
+     (with-temp-buffer
+       (insert "aa.out.not-target")
+       (beginning-of-line)
+       (snakemake-file-targets-at-point 'check))))
+  (should
+   (equal '("aa.out.not-target")
+          (snakemake-with-temp-dir
+            (with-temp-buffer
+              (insert "aa.out.not-target")
+              (beginning-of-line)
+              (snakemake-file-targets-at-point))))))
+
+(ert-deftest test-snakemake/rule-at-point ()
+  "Test `snakemake-rule-targets-at-point'."
+  (should
+   (equal '("aa")
+          (snakemake-with-temp-dir
+            (with-temp-buffer
+              (snakemake-mode)
+              (insert-file-contents "Snakefile")
+              (re-search-forward "rule aa:")
+              (snakemake-rule-at-point 'target)))))
+  (should
+   (equal '("cc_wildcards")
+          (snakemake-with-temp-dir
+            (with-temp-buffer
+              (snakemake-mode)
+              (insert-file-contents "Snakefile")
+              (re-search-forward "rule cc_wildcards:")
+              (snakemake-rule-at-point)))))
+  (should-not
+   (snakemake-with-temp-dir
+    (with-temp-buffer
+      (snakemake-mode)
+      (insert-file-contents "Snakefile")
+      (re-search-forward "rule cc_wildcards:")
+      (snakemake-rule-at-point 'target)))))
+
+(provide 'test-snakemake)
+;;; test-snakemake.el ends here

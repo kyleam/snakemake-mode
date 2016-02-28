@@ -6,7 +6,7 @@
 ;; URL: https://github.com/kyleam/snakemake-mode
 ;; Keywords: tools
 ;; Version: 0.3.0
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5") (magit-popup "2.4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 ;; builds on Python mode to provide fontification, indentation, and
 ;; imenu indexing for Snakemake's rule blocks.
 ;;
+;; See also snakemake.el, which is packaged with snakemake-mode.el and
+;; provides an interface for running Snakemake commands.
+;;
 ;; If Snakemake mode is installed from MELPA, no additional setup is
 ;; required.  It will be loaded the first time a file named 'Snakefile'
 ;; is opened.
@@ -41,17 +44,15 @@
 
 ;;; Code:
 
-(require 'compile)
 (require 'python)
 
 
 ;;; Customization
 
 ;;;###autoload
-(defgroup snakemake nil
+(defgroup snakemake-mode nil
   "Support for Snakemake files"
-  :group 'tools
-  :prefix "snakemake-")
+  :group 'tools)
 
 (defcustom snakemake-mode-hook nil
   "Hook run when entering `snakemake-mode'."
@@ -64,14 +65,6 @@
 (defcustom snakemake-indent-value-offset 4
   "Offset for field values that the line below the field key."
   :type 'integer)
-
-(defcustom snakemake-executable "snakemake"
-  "Snakemake executable to use in compile command."
-  :type 'string)
-
-(defcustom snakemake-compile-command-options nil
-  "Flags to add to default Snakemake compilation command."
-  :type '(repeat string))
 
 
 ;;; Regexp
@@ -301,51 +294,6 @@ or subworkflow block."
         (1- (current-column))))))
 
 
-;;; Compilation
-
-(defun snakemake-compile-command ()
-  "Return Snakemake compile command.
-Flags are taken from `snakemake-compile-command-options'."
-  (mapconcat 'identity
-             (cons snakemake-executable snakemake-compile-command-options)
-             " "))
-
-(defun snakemake-compile-rule (jobs)
-  "Run Snakemake with the rule at point as the target.
-
-The numeric prefix JOBS controls the number of jobs that
-Snakemake runs (defaults to 1).  If JOBS is zero, perform a dry
-run.  If JOBS is negative, just touch the output files.
-
-Customize `snakemake-executable' and
-`snakemake-compile-command-options' to control the compilation
-command."
-  (interactive "p")
-  (unless (snakemake-in-rule-or-subworkflow-block-p)
-    (user-error "Not in rule block"))
-  (save-excursion
-    (end-of-line)
-    (re-search-backward snakemake-rule-or-subworkflow-re)
-    (let ((block-type (match-string-no-properties 1))
-          (rule-name (match-string-no-properties 2)))
-      (pcase block-type
-        ("rule"
-         (let* ((job-flag (cond
-                           ((> jobs 0) (format " -j%s " jobs))
-                           ((zerop jobs) " -n ")
-                           (t " -t ")))
-                (compile-command (concat (snakemake-compile-command) job-flag
-                                         rule-name)))
-           (call-interactively #'compile)))
-        ("subworkflow" (user-error "Cannot compile a subworkflow"))))))
-
-(add-to-list 'compilation-error-regexp-alist 'snakemake)
-(add-to-list
- 'compilation-error-regexp-alist-alist
- '(snakemake . ("^SyntaxError in line \\([0-9]+\\) of \\(.*[^A-z]Snakefile\\):$"
-                2 1)))
-
-
 ;;; Imenu
 
 (defun snakemake-imenu-create-index ()
@@ -375,13 +323,6 @@ label."
 
 ;;; Mode
 
-(defvar snakemake-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map python-mode-map)
-    (define-key map (kbd "C-c C-b") 'snakemake-compile-rule)
-    map)
-  "Keymap for `snakemake-mode'.")
-
 (defvar snakemake-font-lock-keywords
   `((,snakemake-rule-or-subworkflow-line-re (1 font-lock-keyword-face)
                                             (2 font-lock-function-name-face))
@@ -391,18 +332,12 @@ label."
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
-  "Mode for editing Snakemake files.
-
-\\<snakemake-mode-map>\
-Type \\[snakemake-compile-rule] to run Snakemake with the rule of
-the block at point as the target.
-\n\\{snakemake-mode-map}"
+  "Mode for editing Snakemake files."
   (set (make-local-variable 'imenu-create-index-function)
        #'snakemake-imenu-create-index)
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
   (set (make-local-variable 'font-lock-defaults)
-       `(,(append snakemake-font-lock-keywords python-font-lock-keywords)))
-  (set (make-local-variable 'compile-command) (snakemake-compile-command)))
+       `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
