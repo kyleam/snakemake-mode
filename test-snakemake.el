@@ -672,6 +672,13 @@ rule abc:
           (snakemake-with-temp-dir
             (snakemake-rule-targets)))))
 
+(ert-deftest test-snakemake/all-rules ()
+  "Test `snakemake-all-rules'."
+  (should
+   (equal '("aa" "bb" "cc_wildcards" "dd_subdir")
+          (snakemake-with-temp-dir
+            (snakemake-all-rules)))))
+
 (ert-deftest test-snakemake/file-targets ()
   "Test `snakemake-file-targets'."
   (should

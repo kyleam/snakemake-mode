@@ -173,6 +173,15 @@ with DIRECTORY and the Snakefile's modification time."
   "Call `snakemake-program' with ARGS and insert output."
   (apply #'call-process snakemake-program nil t nil args))
 
+(defun snakemake-all-rules (&optional directory)
+  "Return list of rules for DIRECTORY's Snakefile."
+  (snakemake-with-cache directory ("all-rules")
+    (split-string
+     (with-temp-buffer
+       (if (= 0 (snakemake-insert-output "--nocolor" "--list"))
+           (buffer-string)
+         (error "Error finding rules"))))))
+
 (defun snakemake-rule-targets (&optional directory)
   "Return list of target rules for DIRECTORY's Snakefile."
   (snakemake-with-cache directory ("target-rules")
