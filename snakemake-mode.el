@@ -229,9 +229,11 @@ Indent according the the first case below that is true.
       (when (funcall blank-p)
         (forward-line -1))
       (catch 'in-block
-        (while (not (or (bobp) (funcall blank-p)))
-          (when (looking-at-p snakemake-rule-or-subworkflow-re)
-            (throw 'in-block t))
+        (while (not (funcall blank-p))
+          (cond ((looking-at-p snakemake-rule-or-subworkflow-re)
+                 (throw 'in-block t))
+                ((bobp)
+                 (throw 'in-block nil)))
           (forward-line -1))))))
 
 (defun snakemake-below-naked-field-p ()

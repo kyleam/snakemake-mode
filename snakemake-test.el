@@ -522,6 +522,13 @@ rule abc:
     output: 'file'"
     (should-not (snakemake-in-rule-or-subworkflow-block-p)))
 
+  ;; At beginning of buffer
+  (snakemake-with-temp-text
+      "\
+rule abc:
+    output: 'file'<point>"
+    (should (snakemake-in-rule-or-subworkflow-block-p)))
+
   ;; Subworkflow
   (snakemake-with-temp-text
       "
