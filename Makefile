@@ -11,7 +11,7 @@ all: $(elcs) $(AUTOLOADS_FILE)
 
 .PHONY: test
 test:
-	@$(BATCH) -L . -l test-snakemake \
+	@$(BATCH) -L . -l snakemake-test \
 	--eval "(ert-run-tests-batch-and-exit '(not (tag interactive)))"
 
 $(AUTOLOADS_FILE): $(main_el)

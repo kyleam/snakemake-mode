@@ -1,4 +1,4 @@
-;;; test-snakemake.el --- Tests for snakemake{,-mode}.el
+;;; snakemake-test.el --- Test snakemake{,-mode}.el
 
 ;; Copyright (C) 2015-2016 Kyle Meyer <kyle@kyleam.com>
 
@@ -755,5 +755,5 @@ rule abc:
       (re-search-forward "rule cc_wildcards:")
       (snakemake-rule-at-point 'target)))))
 
-(provide 'test-snakemake)
-;;; test-snakemake.el ends here
+(provide 'snakemake-test)
+;;; snakemake-test.el ends here
