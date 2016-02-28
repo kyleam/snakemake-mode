@@ -319,6 +319,13 @@ targets."
      nil nil nil nil
      default)))
 
+(defun snakemake-read-rules (&rest _)
+  "Read multiple rules for the current Snakefile."
+  (mapconcat #'identity
+             (completing-read-multiple "Rules (comma-separated): "
+                                       (snakemake-all-rules))
+             " "))
+
 
 ;;; Compilation commands
 
@@ -396,7 +403,8 @@ $ snakemake [ARGS] -- <targets>"
     (?r "Print reason" "--reason")
     (?t "Touch files" "--touch"))
   :options
-  '((?j "Number of jobs" "-j"))
+  '((?a "Allowed rules" "--allowed-rules " snakemake-read-rules)
+    (?j "Number of jobs" "-j"))
   :actions
   '((?c "Compile" snakemake-compile) nil nil
     (?p "Build target at point" snakemake-build-targets-at-point)
