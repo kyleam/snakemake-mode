@@ -383,13 +383,13 @@ $ snakemake [ARGS] -- <rule>"
 
 $ snakemake [ARGS] -- <targets>"
   (interactive (list (snakemake-arguments)))
-  (let* ((default-directory (snakemake-snakefile-directory))
-         (compilation-read-command t)
-         (compile-command (snakemake--define-compile-command
-                           (or (snakemake-file-targets-at-point)
-                               (snakemake-rule-at-point)
-                               (list ""))
-                           args)))
+  (let ((compile-command (snakemake--define-compile-command
+                          (or (snakemake-file-targets-at-point)
+                              (snakemake-rule-at-point)
+                              (list ""))
+                          args))
+        (compilation-read-command t)
+        (default-directory (snakemake-snakefile-directory)))
     (call-interactively #'compile)))
 
 ;;;###autoload (autoload 'snakemake-popup "snakemake" nil t)
