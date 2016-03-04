@@ -693,6 +693,26 @@ rule abc:
                    (forward-line -1)
                    (snakemake-org-link-file-targets)))))
 
+(ert-deftest snakemake-test-region-file-targets ()
+  (let ((files '("/path/to/fname" "fname2" "CAP")))
+    (should (equal (mapcar #'expand-file-name files)
+                   (with-temp-buffer
+                     (insert (mapconcat #'identity files "\n"))
+                     (snakemake-region-file-targets
+                      (point-min) (point-max)))))
+    (should (equal (mapcar #'expand-file-name files)
+                   (with-temp-buffer
+                     (insert (mapconcat #'identity files ","))
+                     (snakemake-region-file-targets
+                      (point-min) (point-max)))))
+    (should (equal (mapcar #'expand-file-name files)
+                   (with-temp-buffer
+                     (insert (car files))
+                     (insert ?\n)
+                     (insert (mapconcat #'identity (cdr files) " "))
+                     (snakemake-region-file-targets
+                      (point-min) (point-max)))))))
+
 (ert-deftest snakemake-test-file-targets-at-point ()
   (should
    (equal '("aa.out")

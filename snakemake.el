@@ -110,7 +110,8 @@ Snakefiles in the current directory will be detected."
   :package-version '(snakemake-mode . "0.4.0"))
 
 (defcustom snakemake-file-targets-hook
-  '(snakemake-dired-file-targets
+  '(snakemake-region-file-targets
+    snakemake-dired-file-targets
     snakemake-org-link-file-targets
     snakemake-thingatpt-file-targets)
   "Functions to return file targets at point.
@@ -118,6 +119,13 @@ These will be called, with no arguments, until one of them
 signals success by returning non-nil.  If non-nil, the return
 value should be a list of absolute paths."
   :type 'hook
+  :package-version '(snakemake-mode . "0.4.0"))
+
+(defcustom snakemake-region-files-strip-re
+  (concat (regexp-opt '("[" "]" "'" "\"" ";" ",")) "+")
+  "Regexp matching text to be discarded when collecting region files.
+Used by `snakemake-region-file-targets'."
+  :type 'regexp
   :package-version '(snakemake-mode . "0.4.0"))
 
 
@@ -236,6 +244,22 @@ currently limited to a single-item list."
   "Return marked Dired files."
   (and (derived-mode-p 'dired-mode)
        (dired-get-marked-files)))
+
+(defun snakemake-region-file-targets (&optional beg end)
+  "Return file targets in region.
+
+Before generating the list, characters that match
+`snakemake-region-files-strip-re' are discarded.
+
+If BEG or END is non-nil, use them in place of `region-beginning'
+or `region-end', respectively."
+  (when (or (use-region-p) (and beg end))
+    (mapcar #'expand-file-name
+            (split-string
+             (replace-regexp-in-string
+              snakemake-region-files-strip-re " "
+              (buffer-substring-no-properties (or beg (region-beginning))
+                                              (or end (region-end))))))))
 
 (defun snakemake-thingatpt-file-targets ()
   "Return file at point accordinng `thing-at-point'.
