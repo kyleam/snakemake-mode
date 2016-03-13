@@ -345,6 +345,8 @@ label."
 (add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.smrules\\'" . snakemake-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.snakefile\\'" . snakemake-mode))
 
 (provide 'snakemake-mode)
 ;;; snakemake-mode.el ends here
