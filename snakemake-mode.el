@@ -6,7 +6,7 @@
 ;; URL: https://github.com/kyleam/snakemake-mode
 ;; Keywords: tools
 ;; Version: 0.3.0
-;; Package-Requires: ((emacs "24") (cl-lib "0.5") (magit-popup "2.4.0"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5") (magit-popup "2.4.0") (mmm-mode "0.5.4"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -321,6 +321,19 @@ label."
                                   (point-marker)))
             index))
     (nreverse index)))
+
+
+;;; Syntax-highlight embedded R code
+(require 'mmm-mode)
+(setq mmm-global-mode 'maybe)
+
+(mmm-add-classes
+ '((snakemake-R
+    :submode R-mode
+    :front ".*R\(\"\"\""
+    :back ".*\"\"\"\)")))
+
+(mmm-add-mode-ext-class 'snakemake-mode nil 'snakemake-R)
 
 
 ;;; Mode
