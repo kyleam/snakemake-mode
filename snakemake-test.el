@@ -469,6 +469,57 @@ rule abc:
       (snakemake-indent-line)
       (buffer-string)))))
 
+(ert-deftest snakemake-test/indent-region ()
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    output:"
+    (snakemake-with-temp-text
+        "
+<point>rule abc:
+input: 'infile'
+output:"
+      (indent-region (point) (point-max))
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    input:
+        one='one', two='two'
+    output: 'out'
+    run:
+        with open(input.one) as ifh:
+            with open(output.out, 'w') as ofh:
+                ofh.write(ifh.read())"
+    (snakemake-with-temp-text
+        "
+<point>rule abc:
+input:
+one='one', two='two'
+output: 'out'
+run:
+with open(input.one) as ifh:
+with open(output.out, 'w') as ofh:
+ofh.write(ifh.read())"
+      (indent-region (point) (point-max))
+      (buffer-string))))
+  (should
+   (string=
+    "
+x = [1,
+     2,
+     3,]"
+    (snakemake-with-temp-text
+     "
+<point>x = [1,
+2,
+3,]"
+     (indent-region (point) (point-max))
+     (buffer-string)))))
+
 ;;;; Other
 
 (ert-deftest snakemake-test-in-rule-or-subworkflow-block-p ()

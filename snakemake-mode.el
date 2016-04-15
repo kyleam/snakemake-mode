@@ -338,6 +338,7 @@ label."
   (set (make-local-variable 'imenu-create-index-function)
        #'snakemake-imenu-create-index)
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
+  (set (make-local-variable 'indent-region-function) nil)
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
 
