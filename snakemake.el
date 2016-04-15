@@ -92,6 +92,11 @@
   :type 'string
   :package-version '(snakemake-mode . "0.4.0"))
 
+(defcustom snakemake-graph-program "dot"
+  "Software to create rule-graphs."
+  :type 'string
+  :package-version '(snakemake-mode . "0.4.0"))
+
 (defcustom snakemake-file-target-program
   (executable-find "snakemake-file-targets")
   "Program that returns newline-delimited list of output files."
@@ -349,6 +354,46 @@ targets."
              (completing-read-multiple "Rules (comma-separated): "
                                        (snakemake-all-rules))
              " "))
+
+
+;;; Graphing commands
+
+(defun snakemake-show-dag ()
+  "Create and show dag in emacs-buffer."
+  (interactive)
+  (find-file (snakemake-create-dag)))
+
+(defun snakemake-show-rulegraph ()
+  "Create and show rulegraph in emacs-buffer."
+  (interactive)
+  (find-file (snakemake-create-rulegraph)))
+
+(defun snakemake-create-dag ()
+  "Create dag for workflow.
+
+  Shows all jobs. If the graph becomes too crowded, use the rulegraph function."
+  (interactive)
+  (snakemake--create-dotgraph "dag" "png"))
+
+(defun snakemake-create-rulegraph ()
+  "Create rulegraph for workflow.
+
+  Less crowded than dag option."
+  (interactive)
+  (snakemake--create-dotgraph "dag" "png"))
+
+(defun snakemake--create-dotgraph (graph-type image-type)
+  "Create a graph for the current snakefile."
+  (let ((dot (shell-command-to-string (concat "which " snakemake-graph-program))))
+    (when (equal dot "")
+      (error (concat "You do not have " snakemake-graph-program " on your emacs path!"))))
+  (let* ((fname (buffer-file-name))
+         (graphname (concat (buffer-file-name) "." image-type))
+         (graph-command (concat "snakemake --" graph-type " --snakefile " fname " | dot -T" image-type " > " graphname)))
+    (progn
+      (shell-command graph-command)
+      ;; hack to return the graph-name from function.
+      (concat graphname))))
 
 
 ;;; Compilation commands
