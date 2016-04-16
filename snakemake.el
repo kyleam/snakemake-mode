@@ -350,6 +350,32 @@ targets."
                                        (snakemake-all-rules))
              " "))
 
+;;;###autoload
+(defun snakemake-graph (rules &optional rule-graph)
+  "Display graph for DAG of RULES.
+
+The graph will be processed by `snakemake-dot-program' and
+displayed with `image-mode'.
+
+If prefix argument RULE-GRAPH is non-nil, pass --rulegraph
+instead of --dag to snakemake.
+
+$ snakemake --{dag,rulegraph} -- RULES | display"
+  (interactive (list (or (snakemake-file-targets-at-point 'check)
+                         (snakemake-rule-at-point 'target)
+                         (snakemake-read-rule 'targets))
+                     current-prefix-arg))
+  (let ((dir (snakemake-snakefile-directory)))
+    (with-current-buffer (get-buffer-create "*Snakemake graph*")
+      (setq default-directory dir)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (apply #'call-process snakemake-program nil t nil
+               (if rule-graph "--rulegraph" "--dag")
+               (if (listp rules) rules (list rules))))
+      (image-mode)
+      (pop-to-buffer (current-buffer)))))
+
 
 ;;; Compilation commands
 
