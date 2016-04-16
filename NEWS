@@ -11,6 +11,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - Anonymous rule blocks are now supported.
 
+- The 'wrapper' keyword is now recognized.
+
 * v0.3.0
 
 ** New features

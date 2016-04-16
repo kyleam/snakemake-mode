@@ -108,6 +108,7 @@
                  "shell"
                  "threads"
                  "version"
+                 "wrapper"
                  ;; Keys for subworkflow blocks
                  "snakefile"
                  "workdir"))
