@@ -9,6 +9,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - ".snakefile" has been added as a suffix for Snakemake files.
 
+- Anonymous rule blocks are now supported.
+
 * v0.3.0
 
 ** New features

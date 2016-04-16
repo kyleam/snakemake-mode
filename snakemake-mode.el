@@ -70,10 +70,11 @@
 ;;; Regexp
 
 (defconst snakemake-rule-or-subworkflow-re
-  (rx (group symbol-start (or "rule" "subworkflow"))
-      " "
-      (group (one-or-more (or (syntax word) (syntax symbol))))
-      ":")
+  (rx (or (and (group symbol-start (or "rule" "subworkflow"))
+               " "
+               (group (one-or-more (or (syntax word) (syntax symbol))))
+               ":")
+          (and (group symbol-start "rule") ":")))
   "Regexp matching a rule or subworkflow.")
 
 (defconst snakemake-rule-or-subworkflow-line-re
@@ -326,8 +327,10 @@ label."
 ;;; Mode
 
 (defvar snakemake-font-lock-keywords
-  `((,snakemake-rule-or-subworkflow-line-re (1 font-lock-keyword-face)
-                                            (2 font-lock-function-name-face))
+  `((,snakemake-rule-or-subworkflow-line-re
+     (1 font-lock-keyword-face nil 'lax)
+     (2 font-lock-function-name-face nil 'lax)
+     (3 font-lock-keyword-face nil 'lax))
     (,snakemake-toplevel-command-re 1 font-lock-keyword-face)
     (,snakemake-builtin-function-re 1 font-lock-builtin-face)
     (,snakemake-field-key-indented-re 1 font-lock-type-face)))

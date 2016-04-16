@@ -299,7 +299,7 @@ currently limited to a single-item list."
     (save-excursion
       (end-of-line)
       (re-search-backward snakemake-rule-or-subworkflow-re)
-      (let ((rule (and (equal (match-string-no-properties 1) "rule")
+      (let ((rule (and (string= (match-string-no-properties 1) "rule")
                        (match-string-no-properties 2))))
         (and (or (not targets-only) (snakemake-check-target rule))
              (list rule))))))
