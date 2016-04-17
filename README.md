@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.org/kyleam/snakemake-mode.svg?branch=master)](https://travis-ci.org/kyleam/snakemake-mode)
+
 This repo contains two Emacs libraries for [Snakemake].
 
 * [snakemake-mode.el] provides a major mode for editing Snakemake
