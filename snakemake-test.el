@@ -80,6 +80,11 @@ rule cc_wildcards:
 rule dd_subdir:
     input: \"aa.out\"
     output: \"subdir/dd.out\"
+    shell: \"cat {input} > {output}\"
+
+rule:
+    input: \"anon.in\"
+    output: \"anon.out\"
     shell: \"cat {input} > {output}\""))
              ,@body)
          (delete-directory snakemake-test-dir t)))))
@@ -710,13 +715,13 @@ rule abc:
 
 (ert-deftest snakemake-test-rule-targets ()
   (should
-   (equal '("aa" "bb" "dd_subdir")
+   (equal '("aa" "bb" "dd_subdir" "5")
           (snakemake-with-temp-dir
             (snakemake-rule-targets)))))
 
 (ert-deftest snakemake-test-all-rules ()
   (should
-   (equal '("aa" "bb" "cc_wildcards" "dd_subdir")
+   (equal '("aa" "bb" "cc_wildcards" "dd_subdir" "5")
           (snakemake-with-temp-dir
             (snakemake-all-rules)))))
 
@@ -724,7 +729,7 @@ rule abc:
   (should
    (equal
     (and snakemake-file-target-program
-         '("aa.out" "bb.out" "subdir/dd.out"))
+         '("aa.out" "bb.out" "subdir/dd.out" "anon.out"))
     (snakemake-with-temp-dir
       (snakemake-file-targets)))))
 
@@ -809,7 +814,14 @@ rule abc:
       (snakemake-mode)
       (insert-file-contents "Snakefile")
       (re-search-forward "rule cc_wildcards:")
-      (snakemake-rule-at-point 'target)))))
+      (snakemake-rule-at-point 'target))))
+  (should-not
+   (snakemake-with-temp-dir
+     (with-temp-buffer
+       (snakemake-mode)
+       (insert-file-contents "Snakefile")
+       (re-search-forward "rule:")
+       (snakemake-rule-at-point)))))
 
 (provide 'snakemake-test)
 ;;; snakemake-test.el ends here

@@ -328,8 +328,9 @@ currently limited to a single-item list."
       (re-search-backward snakemake-rule-or-subworkflow-re)
       (let ((rule (and (string= (match-string-no-properties 1) "rule")
                        (match-string-no-properties 2))))
-        (and (or (not targets-only) (snakemake-check-target rule))
-             (list rule))))))
+        (when rule
+          (and (or (not targets-only) (snakemake-check-target rule))
+               (list rule)))))))
 
 (defun snakemake--prompt (prompt default)
   (concat prompt
