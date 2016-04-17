@@ -715,13 +715,13 @@ rule abc:
 
 (ert-deftest snakemake-test-rule-targets ()
   (should
-   (equal '("aa" "bb" "dd_subdir" "5")
+   (equal '("aa" "bb" "dd_subdir")
           (snakemake-with-temp-dir
             (snakemake-rule-targets)))))
 
 (ert-deftest snakemake-test-all-rules ()
   (should
-   (equal '("aa" "bb" "cc_wildcards" "dd_subdir" "5")
+   (equal '("aa" "bb" "cc_wildcards" "dd_subdir")
           (snakemake-with-temp-dir
             (snakemake-all-rules)))))
 

@@ -211,21 +211,25 @@ with DIRECTORY and the Snakefile's modification time."
 (defun snakemake-all-rules (&optional directory)
   "Return list of rules for DIRECTORY's Snakefile."
   (snakemake-with-cache directory ("all-rules")
-    (split-string
-     (with-temp-buffer
-       (if (= 0 (snakemake-insert-output "--nocolor" "--list"))
-           (buffer-string)
-         (error "Error finding rules"))))))
+    (cl-remove-if
+     (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
+     (split-string
+      (with-temp-buffer
+        (if (= 0 (snakemake-insert-output "--nocolor" "--list"))
+            (buffer-string)
+          (error "Error finding rules")))))))
 
 (defun snakemake-rule-targets (&optional directory)
   "Return list of target rules for DIRECTORY's Snakefile."
   (snakemake-with-cache directory ("target-rules")
-    (split-string
-     (with-temp-buffer
-       (if (= 0 (snakemake-insert-output
-                 "--nocolor" "--list-target-rules"))
-           (buffer-string)
-         (error "Error finding rule targets"))))))
+    (cl-remove-if
+     (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
+     (split-string
+      (with-temp-buffer
+        (if (= 0 (snakemake-insert-output
+                  "--nocolor" "--list-target-rules"))
+            (buffer-string)
+          (error "Error finding rule targets")))))))
 
 (defun snakemake-file-targets (&optional directory)
   "Return list of output files for DIRECTORY's Snakefile.
