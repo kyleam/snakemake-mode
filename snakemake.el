@@ -128,6 +128,20 @@ Used by `snakemake-region-file-targets'."
   :type 'regexp
   :package-version '(snakemake-mode . "0.4.0"))
 
+(defcustom snakemake-dot-program "dot"
+  "Program used to save the graph with `snakemake-graph-save'.
+This program must have an option '-T' that can be used to specify
+the output type.  See 'man dot'."
+  :type 'string
+  :package-version '(snakemake-mode . "0.4.0"))
+
+(defcustom snakemake-graph-default-extension ".svg"
+  "Extension used by `snakemake-graph-save'.
+This should be a valid value for the '-T' option of
+`snakemake-dot-program'."
+  :type 'string
+  :package-version '(snakemake-mode . "0.4.0"))
+
 
 ;;; Utilities
 
@@ -350,12 +364,18 @@ targets."
                                        (snakemake-all-rules))
              " "))
 
+
+;;; Graphing commands
+
+(defvar-local snakemake-graph-rule nil)
+
 ;;;###autoload
 (defun snakemake-graph (rules &optional rule-graph)
   "Display graph for DAG of RULES.
 
 The graph will be processed by `snakemake-dot-program' and
-displayed with `image-mode'.
+displayed with `image-mode'.  From this buffer, you can call
+\\<snakemake-graph-mode-map>\\[snakemake-graph-save] to save the graph.
 
 If prefix argument RULE-GRAPH is non-nil, pass --rulegraph
 instead of --dag to snakemake.
@@ -365,6 +385,8 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
                          (snakemake-rule-at-point 'target)
                          (snakemake-read-rule 'targets))
                      current-prefix-arg))
+  (unless (listp rules)
+    (setq rules (list rules)))
   (let ((dir (snakemake-snakefile-directory)))
     (with-current-buffer (get-buffer-create "*Snakemake graph*")
       (setq default-directory dir)
@@ -372,9 +394,47 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
         (erase-buffer)
         (apply #'call-process snakemake-program nil t nil
                (if rule-graph "--rulegraph" "--dag")
-               (if (listp rules) rules (list rules))))
+               rules))
       (image-mode)
+      (snakemake-graph-mode)
+      (setq snakemake-graph-rule (mapconcat #'file-name-nondirectory rules "-"))
       (pop-to-buffer (current-buffer)))))
+
+(defun snakemake-graph-save ()
+  "Save graph in current buffer to file.
+The default extension of the file is
+`snakemake-graph-default-extension', but you can enter any
+extension that the dot program supports."
+  (interactive)
+  (unless snakemake-graph-rule
+    (user-error "Not in Snakemake graph buffer"))
+  (let ((file (read-file-name "To file: " nil nil nil
+                              (concat snakemake-graph-rule
+                                      snakemake-graph-default-extension))))
+    (unless (or (string-match-p "\\`\\s-*\\'" file)
+                (and (file-exists-p file)
+                     (not (y-or-n-p
+                           (concat file " already exists.  Overwrite?")))))
+      (call-process-region (point-min) (point-max)
+                           snakemake-dot-program nil (list :file file) nil
+                           "-T" (file-name-extension file)))))
+
+(defvar snakemake-graph-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-s") #'snakemake-graph-save)
+    map)
+  "Keymap for Snakemake-graph mode.")
+
+(define-minor-mode snakemake-graph-mode
+  "Toggle Snakemake-graph mode.
+
+With a prefix argument ARG, enable Snakemake-graph mode if ARG is
+positive, and disable it otherwise.  If called from Lisp, enable
+the mode if ARG is omitted or nil.
+
+Snakemake-graph mode is a minor mode that provides a key,
+\\<snakemake-graph-mode-map>\\[snakemake-graph-save], for saving the graph to an output file."
+  :keymap snakemake-graph-mode-map)
 
 
 ;;; Compilation commands
