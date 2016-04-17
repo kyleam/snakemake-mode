@@ -68,6 +68,13 @@
 ;;     It outputs a list of all concrete output files for the current
 ;;     Snakefile.
 ;;
+;; All these commands use the Snakefile contained in the
+;; `default-directory' of the current buffer.  If
+;; `snakemake-root-dir-function' is non-nil, this function should
+;; return a secondary directory (e.g., a project repository root) in
+;; which to look for a Snakefile if there isn't one in the current
+;; directory.
+;;
 ;; In addition to the popup commands, there are commands for showing
 ;; and saving the dependency graph of a target.  The command
 ;; `snakemake-graph' displays the graph in a buffer.  From this
