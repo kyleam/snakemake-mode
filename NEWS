@@ -13,6 +13,11 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - The 'wrapper' keyword is now recognized.
 
+- New command ~snakemake-graph~ displays the graph of dependencies for
+  a rule.  (Thanks to Endre Bakken Stovner for the idea and initial
+  implementation.)
+
+
 * v0.3.0
 
 ** New features
