@@ -208,28 +208,31 @@ with DIRECTORY and the Snakefile's modification time."
   "Call `snakemake-program' with ARGS and insert output."
   (apply #'call-process snakemake-program nil t nil args))
 
+(defun snakemake--split-rules (type)
+  "Return rules of TYPE.
+TYPE can be `all' or `target'."
+  (cl-remove-if
+   (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
+   (split-string
+    (with-temp-buffer
+      (if (= 0 (snakemake-insert-output
+                "--nocolor"
+                (cl-case type
+                  (all "--list")
+                  (target "--list-target-rules")
+                  (t (user-error "Invalid rule type: %s" type)))))
+          (buffer-string)
+        (error "Error finding rules"))))))
+
 (defun snakemake-all-rules (&optional directory)
   "Return list of rules for DIRECTORY's Snakefile."
   (snakemake-with-cache directory ("all-rules")
-    (cl-remove-if
-     (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
-     (split-string
-      (with-temp-buffer
-        (if (= 0 (snakemake-insert-output "--nocolor" "--list"))
-            (buffer-string)
-          (error "Error finding rules")))))))
+    (snakemake--split-rules 'all)))
 
 (defun snakemake-rule-targets (&optional directory)
   "Return list of target rules for DIRECTORY's Snakefile."
   (snakemake-with-cache directory ("target-rules")
-    (cl-remove-if
-     (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
-     (split-string
-      (with-temp-buffer
-        (if (= 0 (snakemake-insert-output
-                  "--nocolor" "--list-target-rules"))
-            (buffer-string)
-          (error "Error finding rule targets")))))))
+    (snakemake--split-rules 'target)))
 
 (defun snakemake-file-targets (&optional directory)
   "Return list of output files for DIRECTORY's Snakefile.
