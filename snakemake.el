@@ -68,6 +68,12 @@
 ;;     It outputs a list of all concrete output files for the current
 ;;     Snakefile.
 ;;
+;; In addition to the popup commands, there are commands for showing
+;; and saving the dependency graph of a target.  The command
+;; `snakemake-graph' displays the graph in a buffer.  From this
+;; buffer, `snakemake-graph-save' can be called to save the graph to
+;; an output file.
+;;
 ;; [1] http://magit.vc/manual/magit-popup.html
 ;; [2] https://bitbucket.org/snakemake/snakemake/wiki/Home
 
