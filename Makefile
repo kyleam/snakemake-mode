@@ -1,17 +1,21 @@
 
-LOAD_PATH ?=
+LOAD_PATH = -L .deps -L .
 BATCH = emacs -Q --batch $(LOAD_PATH)
+CURL := curl --silent
 
 els := snakemake.el snakemake-mode.el
 elcs := $(patsubst %.el, %.elc, $(els))
 AUTOLOADS_FILE = snakemake-autoloads.el
 
+DASH_URL := https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
+POPUP_URL := https://raw.githubusercontent.com/magit/magit/master/lisp/magit-popup.el
+
 .PHONY: all
 all: $(elcs) $(AUTOLOADS_FILE)
 
 .PHONY: test
-test:
-	@$(BATCH) -L . -l snakemake-test \
+test: | .deps
+	@$(BATCH) -l snakemake-test \
 	--eval "(ert-run-tests-batch-and-exit '(not (tag interactive)))"
 
 $(AUTOLOADS_FILE): $(main_el)
@@ -20,9 +24,18 @@ $(AUTOLOADS_FILE): $(main_el)
 	       (generated-autoload-file \"$(CURDIR)/$@\")) \
 	  (update-directory-autoloads \"$(CURDIR)/\"))"
 
-%.elc: %.el
+.deps:
+	mkdir -p .deps
+	$(CURL) $(DASH_URL) > .deps/dash.el
+	$(CURL) $(POPUP_URL) > .deps/magit-popup.el
+
+%.elc: %.el | .deps
 	@$(BATCH) -f batch-byte-compile $<
 
 .PHONY: clean
 clean:
 	$(RM) $(elcs) $(AUTOLOADS_FILE)
+
+.PHONY: clean-all
+clean-all: clean
+	$(RM) -r .deps
