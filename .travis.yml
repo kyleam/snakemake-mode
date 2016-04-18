@@ -5,7 +5,7 @@ python:
 
 env:
   matrix:
-    - EMACS=emacs24
+    # - EMACS=emacs24  # This is 24.3, while magit-popup.el requires 24.4.
     - EMACS=emacs-snapshot
 
 install:
