@@ -40,6 +40,9 @@
 ;;
 ;; to your initialization file.
 ;;
+;; snakemake-mode.el also includes support for highlighting embedded R
+;; code.  See the snakemake-mode-setup-mmm function documentation for how.
+;;
 ;; [1] https://bitbucket.org/snakemake/snakemake/wiki/browse/
 
 ;;; Code:
@@ -323,6 +326,53 @@ label."
                                   (point-marker)))
             index))
     (nreverse index)))
+
+
+;;; Embedded language syntax-highlighting
+
+(defun snakemake-mode-setup-mmm ()
+  "Set up MMM mode to highlight embedded R code.
+
+You must have the R-strings either within a R(''' ''') function call or a code
+block delimited with '''#r and ''' (triple double-quotes also accepted).
+
+For automatic highlighting of embedded regions, you need to set
+`mmm-global-mode` to 'maybe in your setup file."
+  (unless (require 'mmm-mode nil t)
+    (user-error "You need to install mmm-mode"))
+
+  (when (unless mmm-global-mode)
+    (display-warning 'snakemake-mode "To get automatic syntax highlighting of
+embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe."))
+
+  (mmm-add-classes
+   '((snakemake-R-call-double
+      :submode R-mode
+      :front ".*R\(\"\"\""
+      :back ".*\"\"\"\)")))
+
+  (mmm-add-classes
+   '((snakemake-R-call-regular
+      :submode R-mode
+      :front ".*R\('''"
+      :back ".*'''\)")))
+
+  (mmm-add-classes
+   '((snakemake-R-string-double
+      :submode R-mode
+      :front ".*\"\"\" *# *[rR]"
+      :back ".*\"\"\"")))
+
+  (mmm-add-classes
+   '((snakemake-R-string-regular
+      :submode R-mode
+      :front ".*''' *# *[rR]"
+      :back ".*'''")))
+
+  (mmm-add-mode-ext-class 'snakemake-mode nil 'snakemake-R-call-double)
+  (mmm-add-mode-ext-class 'snakemake-mode nil 'snakemake-R-call-regular)
+  (mmm-add-mode-ext-class 'snakemake-mode nil 'snakemake-R-string-double)
+  (mmm-add-mode-ext-class 'snakemake-mode nil 'snakemake-R-string-regular))
 
 
 ;;; Mode
