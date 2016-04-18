@@ -1,6 +1,7 @@
 
 LOAD_PATH = -L .deps -L .
-BATCH = emacs -Q --batch $(LOAD_PATH)
+EMACS = emacs
+BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
 CURL := curl --silent
 
 els := snakemake.el snakemake-mode.el
