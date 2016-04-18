@@ -1,22 +1,21 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
-* v0.4.0 (unreleased)
+* v0.4.0
 
 ** New features
 
 - New library snakemake.el provides a popup interface for running
   Snakemake from Emacs.
 
+- New command ~snakemake-graph~ displays the graph of dependencies for
+  a rule.  (Thanks to Endre Bakken Stovner for the idea and initial
+  implementation.)
+
 - ".snakefile" has been added as a suffix for Snakemake files.
 
 - Anonymous rule blocks are now supported.
 
 - The 'wrapper' keyword is now recognized.
-
-- New command ~snakemake-graph~ displays the graph of dependencies for
-  a rule.  (Thanks to Endre Bakken Stovner for the idea and initial
-  implementation.)
-
 
 * v0.3.0
 

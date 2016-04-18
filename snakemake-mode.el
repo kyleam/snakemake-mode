@@ -5,7 +5,7 @@
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; URL: https://github.com/kyleam/snakemake-mode
 ;; Keywords: tools
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Package-Requires: ((emacs "24") (cl-lib "0.5") (magit-popup "2.4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
