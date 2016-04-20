@@ -388,7 +388,7 @@ targets."
 
 ;;; Graphing commands
 
-(defvar-local snakemake-graph-rule nil)
+(defvar-local snakemake-graph-id nil)
 
 ;;;###autoload
 (defun snakemake-graph (rules &optional rule-graph)
@@ -418,7 +418,7 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
                rules))
       (image-mode)
       (snakemake-graph-mode)
-      (setq snakemake-graph-rule (mapconcat #'file-name-nondirectory rules "-"))
+      (setq snakemake-graph-id (mapconcat #'file-name-nondirectory rules "-"))
       (pop-to-buffer (current-buffer)))))
 
 ;;;###autoload
@@ -469,7 +469,7 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
       (if (= 0 ret-val)
           (progn (image-mode)
                  (snakemake-graph-mode)
-                 (setq snakemake-graph-rule file))
+                 (setq snakemake-graph-id file))
         (goto-char (point-min))
         (insert (format "Error in snakemake call from %s:\n\n" dir)))
       (pop-to-buffer (current-buffer)))))
@@ -481,10 +481,10 @@ default extension of the output file is
 `snakemake-graph-default-extension', but you can enter any
 extension that the dot program supports."
   (interactive)
-  (unless snakemake-graph-rule
+  (unless snakemake-graph-id
     (user-error "Not in Snakemake graph buffer"))
   (let ((file (read-file-name "To file: " nil nil nil
-                              (concat snakemake-graph-rule
+                              (concat snakemake-graph-id
                                       snakemake-graph-default-extension))))
     (unless (or (string-match-p "\\`\\s-*\\'" file)
                 (and (file-exists-p file)
