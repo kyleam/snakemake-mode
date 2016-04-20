@@ -421,6 +421,59 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
       (setq snakemake-graph-rule (mapconcat #'file-name-nondirectory rules "-"))
       (pop-to-buffer (current-buffer)))))
 
+;;;###autoload
+(defun snakemake-graph-this-file (&optional rule-graph directory)
+  "Display graph of DAG for the first rule of the current file.
+
+The graph will be displayed with `image-mode'.  From this buffer,
+you can call \\<snakemake-graph-mode-map>\\[snakemake-graph-save] \
+to save the graph.
+
+If RULE-GRAPH is non-nil, pass --rulegraph instead of --dag to
+the Snakemake call.  Snakemake is called from DIRECTORY or, if
+DIRECTORY is nil, from the current file's directory.
+
+Interactively, \\[universal-argument] indicates to use \
+--rulegraph instead of --dag,
+whereas \\[universal-argument] \\[universal-argument] signals to \
+prompt user for a directory from which
+to call Snakemake.  With any other non-nil prefix value, both of the
+above actions are performed.
+
+$ snakemake -s <current file> --{dag,rulegraph} | display"
+  (interactive
+   (let ((read-dir (lambda ()
+                     (read-directory-name "Call from directory: "
+                                          nil nil t))))
+     (cond ((equal current-prefix-arg '(4))
+            (list t nil))
+           ((equal current-prefix-arg '(16))
+            (list nil (funcall read-dir)))
+           (current-prefix-arg
+            (list t (funcall read-dir)))
+           (t
+            (list nil nil)))))
+  (unless (derived-mode-p 'snakemake-mode)
+    (user-error "Current buffer is not in Snakemake mode"))
+  (let* ((file (or (buffer-file-name (buffer-base-buffer))
+                   (user-error "Buffer is not visiting a file")))
+         (dir (or directory (file-name-directory file)))
+         ret-val)
+    (with-current-buffer (get-buffer-create "*Snakemake graph*")
+      (setq default-directory dir)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (setq ret-val (call-process snakemake-program nil t nil
+                                    (if rule-graph "--rulegraph" "--dag")
+                                    "--snakefile" file)))
+      (if (= 0 ret-val)
+          (progn (image-mode)
+                 (snakemake-graph-mode)
+                 (setq snakemake-graph-rule file))
+        (goto-char (point-min))
+        (insert (format "Error in snakemake call from %s:\n\n" dir)))
+      (pop-to-buffer (current-buffer)))))
+
 (defun snakemake-graph-save ()
   "Save graph in current buffer to file.
 The graph will be processed by `snakemake-dot-program'.  The

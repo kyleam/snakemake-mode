@@ -1,5 +1,15 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* v0.5.0 (unreleased)
+
+** New features
+
+- New command ~snakemake-graph-this-file~ displays the graph for the
+  first rule of the current file.  Similar functionality is available
+  from ~snakemake-graph~, which supports graphing any target in the
+  file, but you may find the new command useful if your workflow
+  involves frequently using Snakemake's ~--snakefile~ option.
+
 * v0.4.0
 
 ** New features
