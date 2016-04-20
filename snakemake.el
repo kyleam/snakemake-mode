@@ -395,7 +395,7 @@ targets."
   "Display graph for DAG of RULES.
 
 The graph will be displayed with `image-mode'.  From this buffer,
-you can call \\<snakemake-graph-mode-map>\\[snakemake-graph-save]
+you can call \\<snakemake-graph-mode-map>\\[snakemake-graph-save] \
 to save the graph.
 
 If prefix argument RULE-GRAPH is non-nil, pass --rulegraph
