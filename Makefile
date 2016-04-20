@@ -19,7 +19,7 @@ test: | .deps
 	@$(BATCH) -l snakemake-test \
 	--eval "(ert-run-tests-batch-and-exit '(not (tag interactive)))"
 
-$(AUTOLOADS_FILE): $(main_el)
+$(AUTOLOADS_FILE): $(els)
 	@$(BATCH) --eval \
 	"(let ((make-backup-files nil) \
 	       (generated-autoload-file \"$(CURDIR)/$@\")) \
