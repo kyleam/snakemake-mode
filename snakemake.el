@@ -394,9 +394,9 @@ targets."
 (defun snakemake-graph (rules &optional rule-graph)
   "Display graph for DAG of RULES.
 
-The graph will be processed by `snakemake-dot-program' and
-displayed with `image-mode'.  From this buffer, you can call
-\\<snakemake-graph-mode-map>\\[snakemake-graph-save] to save the graph.
+The graph will be displayed with `image-mode'.  From this buffer,
+you can call \\<snakemake-graph-mode-map>\\[snakemake-graph-save]
+to save the graph.
 
 If prefix argument RULE-GRAPH is non-nil, pass --rulegraph
 instead of --dag to snakemake.
@@ -423,7 +423,8 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
 
 (defun snakemake-graph-save ()
   "Save graph in current buffer to file.
-The default extension of the file is
+The graph will be processed by `snakemake-dot-program'.  The
+default extension of the output file is
 `snakemake-graph-default-extension', but you can enter any
 extension that the dot program supports."
   (interactive)
