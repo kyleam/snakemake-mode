@@ -330,6 +330,9 @@ label."
 
 ;;; Embedded language syntax-highlighting
 
+(declare-function mmm-add-classes "mmm-vars")
+(declare-function mmm-add-mode-ext-class "mmm-vars")
+
 (defun snakemake-mode-setup-mmm ()
   "Set up MMM mode to highlight embedded R code.
 
