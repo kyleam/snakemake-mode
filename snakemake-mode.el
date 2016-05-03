@@ -76,8 +76,11 @@
   (rx (or (and (group symbol-start (or "rule" "subworkflow"))
                " "
                (group (one-or-more (or (syntax word) (syntax symbol))))
+               (zero-or-more space)
                ":")
-          (and (group symbol-start "rule") ":")))
+          (and (group symbol-start "rule")
+               (zero-or-more space)
+               ":")))
   "Regexp matching a rule or subworkflow.")
 
 (defconst snakemake-rule-or-subworkflow-line-re
