@@ -111,6 +111,13 @@ rule:
         "     rule abc:"
       (snakemake-indent-line)
       (buffer-string))))
+  (should
+   (string=
+    "rule abc :"
+    (snakemake-with-temp-text
+        "     rule abc :"
+      (snakemake-indent-line)
+      (buffer-string))))
 
   ;; Don't move point if beyond column 0.
   (should
@@ -206,6 +213,19 @@ rule abc:
 rule abc:
     input: 'infile'
 <point>output:"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    input: 'infile'
+    output :"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    input: 'infile'
+<point>output :"
       (snakemake-indent-line)
       (buffer-string))))
   (should

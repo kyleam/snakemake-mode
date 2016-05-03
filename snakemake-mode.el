@@ -95,7 +95,7 @@
                  "onsuccess"
                  "ruleorder"
                  "workdir"))
-      ":" (zero-or-more space))
+      (zero-or-more space) ":")
   "Regexp matching other toplevel commands aside from 'rule'.")
 
 (defconst snakemake-field-key-re
@@ -118,7 +118,7 @@
                  ;; Keys for subworkflow blocks
                  "snakefile"
                  "workdir"))
-      ":")
+      (zero-or-more space) ":")
   "Regexp matching a rule or subworkflow field key.")
 
 (defconst snakemake-field-key-indented-re
@@ -128,7 +128,7 @@
 (defconst snakemake-builtin-function-re
   (rx (group symbol-start
              (or "expand" "shell" "protected" "temp" "dynamic" "touch"))
-      "(")
+      (zero-or-more space) "(")
   "Regexp matching a call to a builtin Snakemake function.")
 
 
