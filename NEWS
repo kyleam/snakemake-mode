@@ -10,6 +10,10 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
   file, but you may find the new command useful if your workflow
   involves frequently using Snakemake's ~--snakefile~ option.
 
+- New function ~snakemake-mode-setup-mmm~ configures MMM mode to
+  highlight string-embedded R code.  (Contributed by Endre Bakken
+  Stovner.)
+
 * v0.4.0
 
 ** New features
