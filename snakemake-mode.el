@@ -89,6 +89,7 @@
 
 (defconst snakemake-toplevel-command-re
   (rx line-start
+      (zero-or-more space)
       (group (or "configfile"
                  "include"
                  "onerror"
