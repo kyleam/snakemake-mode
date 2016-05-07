@@ -575,6 +575,112 @@ rule abc:
     output: 'file'"
      (snakemake-block-bounds))))
 
+(ert-deftest snakemake-test-beginning-of-block ()
+  (should
+   (string= "
+rule abc:
+    output: 'file'"
+            (snakemake-with-temp-text
+                "
+<point>rule abc:
+    output: 'file'"
+              (snakemake-beginning-of-block)
+              (buffer-substring (point) (point-max)))))
+  (should
+   (string= "rule abc:
+    output: 'file'"
+            (snakemake-with-temp-text
+                "
+rule abc:
+    output: <point>'file'"
+              (snakemake-beginning-of-block)
+              (buffer-substring (point) (point-max)))))
+  (should
+   (string= "rule abc:
+    output: 'file'
+
+"
+            (snakemake-with-temp-text
+                "
+rule abc:
+    output: 'file'
+
+<point>"
+              (snakemake-beginning-of-block)
+              (buffer-substring (point) (point-max)))))
+  (should
+   (string= "rule abc:
+     \"\"\"docstring header
+
+     docstring line
+     \"\"\"
+    output: 'file'"
+            (snakemake-with-temp-text
+                "
+rule abc:
+     \"\"\"docstring header
+
+     docstring line
+     \"\"\"
+    output: 'file'<point>"
+              (snakemake-beginning-of-block)
+              (buffer-substring (point) (point-max)))))
+  (should
+   (string= "subworkflow otherworkflow:
+    workdir: '../path/to/otherworkflow'
+    snakefile: '../path/to/otherworkflow/Snakefile'"
+            (snakemake-with-temp-text
+                "
+subworkflow otherworkflow:
+<point>    workdir: '../path/to/otherworkflow'
+    snakefile: '../path/to/otherworkflow/Snakefile'"
+              (snakemake-beginning-of-block)
+              (buffer-substring (point) (point-max))))))
+
+(ert-deftest snakemake-test-end-of-block ()
+  (should
+   (string= "
+rule abc:
+    output: 'file'
+
+
+"
+            (snakemake-with-temp-text
+                "
+rule abc:
+<point>    output: 'file'
+
+
+"
+              (snakemake-end-of-block)
+              (buffer-substring (point-min) (point)))))
+  (should
+   (string= "
+rule abc:
+    output: 'file'
+"
+            (snakemake-with-temp-text
+                "
+rule abc:<point>
+    output: 'file'
+
+rule xyz:
+    input: 'file'"
+              (snakemake-end-of-block)
+              (buffer-substring (point-min) (point)))))
+  (should
+   (string= "
+rule abc:
+    output: 'file'"
+            (snakemake-with-temp-text
+                "
+rule abc:<point>
+    output: 'file'
+rule xyz:
+    input: 'file'"
+              (snakemake-end-of-block)
+              (buffer-substring (point-min) (point))))))
+
 
 ;;; snakemake.el
 

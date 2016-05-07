@@ -16,6 +16,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - ".rules" has been added as a suffix for Snakemake files.
 
+- ~beginning-of-defun~ and ~end-of-defun~ implementations for rule
+  blocks are now defined.
+
 * v0.4.0
 
 ** New features

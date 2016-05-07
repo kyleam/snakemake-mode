@@ -158,6 +158,54 @@
                (when (<= rule-start pos rule-end)
                  (cons rule-start rule-end))))))))
 
+(defun snakemake-beginning-of-block (&optional arg)
+  "Move to beginning of rule block.
+With ARG, do it that many times.  Negative ARG signals to move
+forward rather than backward."
+  (when (or (null arg) (= arg 0))
+    (setq arg 1))
+  (funcall (if (> arg 0)
+               #'re-search-backward
+             (lambda (&rest args)
+               (end-of-line)
+               (prog1 (apply #'re-search-forward args)
+                 (beginning-of-line))))
+           snakemake-rule-or-subworkflow-re
+           nil 'move (abs arg))
+  (looking-at-p snakemake-rule-or-subworkflow-re))
+
+(defun snakemake-end-of-block ()
+  "Move to end of rule or subworkflow block."
+  (let ((bounds (snakemake-block-bounds)))
+    (when bounds
+      (goto-char (cdr bounds)))))
+
+(defun snakemake-beginning-of-defun (&optional arg)
+  "Move to beginning of current rule block or function.
+With ARG, do it that many times.  Negative ARG signals to move
+forward rather than backward."
+  (when (or (null arg) (= arg 0))
+    (setq arg 1))
+  (let ((choose-fn (if (> arg 0) #'max #'min))
+        (cands (delq nil
+                     (mapcar
+                      (lambda (f)
+                        (save-excursion (and (funcall f arg) (point))))
+                      (list #'snakemake-beginning-of-block
+                            #'python-nav-beginning-of-defun)))))
+    (cond (cands
+           (goto-char (apply choose-fn cands)))
+          ((> arg 0)
+           (goto-char (point-min))
+           nil)
+          (t
+           (goto-char (point-max))
+           nil))))
+
+(defun snakemake-end-of-defun ()
+  "Move to end of current rule block or function."
+  (or (snakemake-end-of-block)
+      (python-nav-end-of-defun)))
 
 ;;; Indentation
 
@@ -347,6 +395,12 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
        #'snakemake-imenu-create-index)
   (set (make-local-variable 'indent-line-function) 'snakemake-indent-line-function)
   (set (make-local-variable 'indent-region-function) nil)
+
+  (set (make-local-variable 'beginning-of-defun-function)
+       #'snakemake-beginning-of-defun)
+  (set (make-local-variable 'end-of-defun-function)
+       #'snakemake-end-of-defun)
+
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
 
