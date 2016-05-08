@@ -47,6 +47,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'python)
 
 
@@ -73,7 +74,9 @@
 ;;; Regexp
 
 (defconst snakemake-rule-or-subworkflow-re
-  (rx (or (and (group symbol-start (or "rule" "subworkflow"))
+  (rx line-start
+      (zero-or-more space)
+      (or (and (group symbol-start (or "rule" "subworkflow"))
                " "
                (group (one-or-more (or (syntax word) (syntax symbol))))
                (zero-or-more space)
@@ -82,10 +85,6 @@
                (zero-or-more space)
                ":")))
   "Regexp matching a rule or subworkflow.")
-
-(defconst snakemake-rule-or-subworkflow-line-re
-  (concat "^" snakemake-rule-or-subworkflow-re)
-  "Regexp matching a rule or subworkflow at start of line.")
 
 (defconst snakemake-toplevel-command-re
   (rx line-start
@@ -135,97 +134,95 @@
 
 ;;; Indentation
 
-(defun snakemake-indent-line ()
-  "Indent the current line.
-Outside of rule blocks, handle indentation as it would be in a
-Python mode buffer (using `python-indent-line-function').  Inside
-rule blocks (or on a blank line directly below), call
-`snakemake-indent-rule-line'."
-  (interactive)
-  (if (snakemake-in-rule-or-subworkflow-block-p)
-      (snakemake-indent-rule-line)
-    (python-indent-line-function)))
+(defun snakemake--calculate-indentation (&optional previous)
+  "Return indentation offset for the current line.
 
-(defun snakemake-indent-rule-line ()
-  "Indent line of a rule or subworkflow block.
+A non-nil value for PREVIOUS indicates that the previous command
+was an indentation command.
 
-Indent according the the first case below that is true.
-
-- At the top of rule block
-
-  Remove all indentation.
-
-- At a rule field key ('input', 'output',...) or on the first
-  field line of the block
-
-  Indent the line to `snakemake-indent-field-offset'.
-
-- On first line below a naked field key.
-
-  Indent the line with `snakemake-indent-field-offset' plus
-  `snakemake-indent-value-offset'.
-
-- On any 'run' field value line except for the first value line.
-
-  Indent according to Python mode.
-
-- Before the current indentation
-
-  Move point to the current indentation.
-
-- Otherwise
-
-  Cycle between indenting to `snakemake-indent-field-offset',
-  indenting to the column of the previous field value.  If within
-  a field value for a naked field key, add a step that indents
-  according to Python mode."
-  (let ((start-col (current-column))
-        (start-indent (current-indentation)))
-    (save-excursion
-      (beginning-of-line)
-      (cond
-       ((looking-at-p (concat "^\\s-*" snakemake-rule-or-subworkflow-re))
-        (delete-horizontal-space))
-       ((or (looking-at-p (concat "^\\s-*" snakemake-field-key-re))
-            (snakemake-first-field-line-p))
-        (delete-horizontal-space)
-        (indent-to snakemake-indent-field-offset))
-       ((snakemake-below-naked-field-p)
-        (delete-horizontal-space)
-        (indent-to (+ snakemake-indent-field-offset
-                      snakemake-indent-value-offset)))
-       ((snakemake-run-field-line-p)
-        (python-indent-line-function))
-       ((>= start-col start-indent)
-        (let ((prev-col (snakemake-previous-field-value-column)))
-          (when prev-col
+When Python mode should handle the indentation, a nil value is
+returned."
+  (when (memq (car (python-indent-context))
+              (list :after-line
+                    ;; If point is on a value line following a naked
+                    ;; field value, `python-indent-context' returns
+                    ;; :after-block-start.
+                    :after-block-start))
+    (let* ((initial-indent (current-indentation))
+           (first-col (prog-first-column))
+           (goto-first-p (or (not previous) (= initial-indent first-col))))
+      (save-excursion
+        (save-restriction
+          (prog-widen)
+          (beginning-of-line)
+          (if (or (looking-at-p (concat "^\\s-*" snakemake-field-key-re))
+                  (looking-at-p (rx line-start
+                                    (zero-or-more space)
+                                    (or "\"\"\"" "'''"))))
+              (and goto-first-p
+                   (let (rule-indent)
+                     (while (not (or rule-indent (bobp)))
+                       (forward-line -1)
+                       (when (looking-at-p snakemake-rule-or-subworkflow-re)
+                         (setq rule-indent (current-indentation))))
+                     (and rule-indent
+                          (+ rule-indent snakemake-indent-field-offset))))
+            ;; We need to look back to determine indentation.
+            (skip-chars-backward " \t\n")
+            (beginning-of-line)
             (cond
-             ((and (snakemake-naked-field-line-p)
-                   (or (and (= start-indent 0)
-                            (not (looking-at-p "^\\s-*$")))
-                       (= start-indent prev-col)))
-              (let (last-command)
-                ;; ^ Don't let `python-indent-line' do clever things
-                ;; when indent command is repeated.
-                (python-indent-line-function))
-              (when (= (current-column) start-indent)
-                (delete-horizontal-space)
-                (indent-to snakemake-indent-value-offset)))
-             ((= start-indent snakemake-indent-field-offset)
-              (delete-horizontal-space)
-              (indent-to prev-col))
-             (t
-              (delete-horizontal-space)
-              (indent-to snakemake-indent-field-offset))))))))
-    (when (< (current-column) (current-indentation))
-      (forward-to-indentation 0))))
+             ((cl-some (lambda (re) (looking-at-p (concat re "\\s-*$")))
+                       (list snakemake-field-key-indented-re
+                             snakemake-rule-or-subworkflow-re
+                             snakemake-toplevel-command-re))
+              (let ((above-indent (current-indentation)))
+                (cond (goto-first-p
+                       (+ above-indent snakemake-indent-value-offset))
+                      ((< above-indent initial-indent)
+                       above-indent))))
+             ((looking-at (concat snakemake-field-key-indented-re "\\s-*"))
+              (let ((above-indent (current-indentation)))
+                (cond (goto-first-p
+                       (- (match-end 0) (line-beginning-position)))
+                      ((< above-indent initial-indent)
+                       above-indent))))
+             ((save-excursion
+                (let ((above-indent (current-indentation))
+                      field-indent)
+                  (when (> above-indent first-col)
+                    (while (and (not (bobp))
+                                (or (= above-indent
+                                       (setq field-indent (current-indentation)))
+                                    (looking-at-p "^\\s-*$")))
+                      (forward-line -1)))
+                  (and (looking-at
+                        (concat snakemake-field-key-indented-re "\\s-*"))
+                       (not (equal (match-string-no-properties 1)
+                                   "run"))
+                       (cond (goto-first-p
+                              (- (match-end 0) (line-beginning-position)))
+                             ((< field-indent initial-indent)
+                              field-indent)))))))))))))
 
-(defun snakemake-first-field-line-p ()
-  "Return non-nil if point is on first field line of block."
-  (save-excursion
-    (forward-line -1)
-    (beginning-of-line)
-    (looking-at-p snakemake-rule-or-subworkflow-re)))
+(defun snakemake-indent-line (&optional previous)
+  "Snakemake mode variant of `python-indent-line'."
+  (let ((follow-indentation-p
+         (and (<= (line-beginning-position) (point))
+              (>= (+ (line-beginning-position)
+                     (current-indentation))
+                  (point)))))
+    (save-excursion
+      (indent-line-to
+       (or (snakemake--calculate-indentation previous)
+           (python-indent-calculate-indentation previous))))
+    (when follow-indentation-p
+      (back-to-indentation))))
+
+(defun snakemake-indent-line-function ()
+  "Snakemake mode variant of `python-indent-line-function'."
+  (snakemake-indent-line
+   (and (memq this-command python-indent-trigger-commands)
+        (eq last-command this-command))))
 
 (defun snakemake-in-rule-or-subworkflow-block-p ()
   "Return non-nil if point is in block or on first blank line following one."
@@ -244,65 +241,6 @@ Indent according the the first case below that is true.
                 ((bobp)
                  (throw 'in-block nil)))
           (forward-line -1))))))
-
-(defun snakemake-below-naked-field-p ()
-  "Return non-nil if point is on first line below a naked field key."
-  (save-excursion
-    (forward-line -1)
-    (beginning-of-line)
-    (looking-at-p (concat snakemake-field-key-indented-re "\\s-*$"))))
-
-(defun snakemake-naked-field-line-p ()
-  "Return non-nil if point is on any line of naked field key.
-This function assumes that point is in a rule or subworkflow
-block (which includes being on a blank line immediately below a
-block)."
-  (save-excursion
-    (let ((rule-start (save-excursion
-                        (end-of-line)
-                        (re-search-backward snakemake-rule-or-subworkflow-re
-                                            nil t))))
-      (end-of-line)
-      (and (re-search-backward snakemake-field-key-indented-re
-                               rule-start t)
-           (goto-char (match-end 0))
-           (looking-at-p "\\s-*$")))))
-
-(defun snakemake-run-field-line-p ()
-  "Return non-nil if point is on any line below a run field key.
-This function assumes that point is in a rule or subworkflow
-block (which includes being on a blank line immediately below a
-block).  If it's not, it gives the wrong answer if below a rule
-block whose last field is 'run'."
-  (save-excursion
-    (let ((rule-start (save-excursion
-                        (end-of-line)
-                        (re-search-backward snakemake-rule-or-subworkflow-re
-                                            nil t))))
-      (forward-line -1)
-      (end-of-line)
-      (re-search-backward snakemake-field-key-indented-re rule-start t)
-      (string= (match-string 1) "run"))))
-
-(defun snakemake-previous-field-value-column ()
-  "Get column for previous field value.
-
-If directly below a field key, this corresponds to the column for
-the first non-blank character after 'key:'.  Otherwise, it is the
-column of the first non-blank character.
-
-This function assumes that the previous line is a field value (in
-other words, that point is at or beyond the third line of a rule
-or subworkflow block."
-  (save-excursion
-    (forward-line -1)
-    (beginning-of-line)
-    ;; Because of multiline fields, the previous line may not have a
-    ;; key.
-    (let ((rule-re (concat "\\(?:" snakemake-field-key-indented-re
-                           "\\)*\\s-*\\S-")))
-      (when (re-search-forward rule-re (point-at-eol) t)
-        (1- (current-column))))))
 
 
 ;;; Imenu
@@ -324,7 +262,7 @@ label."
 (defun snakemake--imenu-build-rule-index ()
   (goto-char (point-min))
   (let (index)
-    (while (re-search-forward snakemake-rule-or-subworkflow-line-re nil t)
+    (while (re-search-forward snakemake-rule-or-subworkflow-re nil t)
       (push (cons (match-string-no-properties 2)
                   (save-excursion (beginning-of-line)
                                   (point-marker)))
@@ -385,7 +323,7 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
 ;;; Mode
 
 (defvar snakemake-font-lock-keywords
-  `((,snakemake-rule-or-subworkflow-line-re
+  `((,snakemake-rule-or-subworkflow-re
      (1 font-lock-keyword-face nil 'lax)
      (2 font-lock-function-name-face nil 'lax)
      (3 font-lock-keyword-face nil 'lax))
@@ -398,7 +336,7 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
   "Mode for editing Snakemake files."
   (set (make-local-variable 'imenu-create-index-function)
        #'snakemake-imenu-create-index)
-  (set (make-local-variable 'indent-line-function) 'snakemake-indent-line)
+  (set (make-local-variable 'indent-line-function) 'snakemake-indent-line-function)
   (set (make-local-variable 'indent-region-function) nil)
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))

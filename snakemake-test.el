@@ -96,7 +96,6 @@ rule:
 ;;;; Indentation
 
 (ert-deftest snakemake-test-indent-line/at-rule-block ()
-  ;; Always shift first line of block to column 0.
   (should
    (string=
     "rule abc:"
@@ -118,8 +117,6 @@ rule:
         "     rule abc :"
       (snakemake-indent-line)
       (buffer-string))))
-
-  ;; Don't move point if beyond column 0.
   (should
    (string=
     "rule abc:  "
@@ -129,14 +126,28 @@ rule:
       (buffer-string))))
   (should
    (string=
-    "rule "
+    "
+if True:
+    rule abc:"
     (snakemake-with-temp-text
-        "    rule <point>abc:  <point>"
+        "
+if True:
+rule abc:<point>"
       (snakemake-indent-line)
-      (buffer-substring (point-min) (point))))))
+      (buffer-string))))
+  (should
+   (string=
+    "
+if True:
+rule abc:"
+    (snakemake-with-temp-text
+        "
+if True:
+    <point>rule abc:"
+      (snakemake-indent-line 'prev)
+      (buffer-string)))))
 
 (ert-deftest snakemake-test-indent-line/outside-rule ()
-  ;; Use standard Python mode indentation outside of rule blocks.
   (should
    (string=
     "
@@ -149,10 +160,49 @@ def ok():
       (snakemake-indent-line)
       (buffer-string)))))
 
+(ert-deftest snakemake-test-indent-line/toplevel-command ()
+  (should
+   (string=
+    "include: \"somefile\""
+    (snakemake-with-temp-text
+        "include: \"somefile\""
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "include: \"somefile\""
+    (snakemake-with-temp-text
+        "   include: \"somefile\""
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+if True:
+    include: \"somefile\"
+"
+    (snakemake-with-temp-text
+        "
+if True:
+<point>include: \"somefile\"
+"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+include:
+    \"somefile\"
+"
+    (snakemake-with-temp-text
+        "
+include:
+<point>\"somefile\"
+"
+      (snakemake-indent-line)
+      (buffer-string)))))
+
 (ert-deftest snakemake-test-indent-line/field-key ()
-  ;; Always indent first line to `snakemake-indent-field-offset'.
-  ;; Move point to `snakemake-indent-field-offset' if it is before any
-  ;; text on the line.
   (should
    (string=
     "
@@ -168,13 +218,36 @@ rule abc:
    (string=
     "
 rule abc:
+
+    "
+    (snakemake-with-temp-text
+        "
+rule abc:
+
+<point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
     "
     (snakemake-with-temp-text
         "
 rule abc:
 <point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
+      (snakemake-indent-line 'prev)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+"
+    (snakemake-with-temp-text
+        "
+rule abc:
+   <point>"
+      (snakemake-indent-line 'prev)
       (buffer-string))))
   (should
    (string=
@@ -191,6 +264,19 @@ text<point>"
    (string=
     "
 rule abc:
+
+    text"
+    (snakemake-with-temp-text
+        "
+rule abc:
+
+text<point>"
+      (snakemake-indent-line)
+      (buffer-substring (point-min) (point)))))
+  (should
+   (string=
+    "
+rule abc:
     te"
     (snakemake-with-temp-text
         "
@@ -198,10 +284,6 @@ rule abc:
 te<point>xt"
       (snakemake-indent-line)
       (buffer-substring (point-min) (point)))))
-
-  ;; Always indent field key to `snakemake-indent-field-offset'.
-  ;; Move point to `snakemake-indent-field-offset' if it is before any
-  ;; text on the line.
   (should
    (string=
     "
@@ -239,8 +321,7 @@ rule abc:
 rule abc:
     input: 'infile'
 <point>output:"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
+      (snakemake-indent-line 'prev)
       (buffer-string))))
   (should
    (string=
@@ -270,10 +351,6 @@ rule abc:
       (buffer-substring (point-min) (point))))))
 
 (ert-deftest snakemake-test-indent-line/field-value ()
-  ;; Always indent line below naked field key to
-  ;; `snakemake-indent-field-offset' +
-  ;; `snakemake-indent-value-offset'.  Move point to to this position
-  ;; as well if it is before any text on the line.
   (should
    (string=
     "
@@ -298,8 +375,7 @@ rule abc:
 rule abc:
     output:
 <point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
+      (snakemake-indent-line 'prev)
       (buffer-string))))
   (should
    (string=
@@ -312,24 +388,6 @@ rule abc:
 rule abc:
     output:
               <point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; Add step with Python indentation for non-blank lines under naked
-  ;; field keys.  Field keys with values starting on the same line do
-  ;; not use Python indentation because this is invalid syntax in
-  ;; Snakemake.
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file{}{}'.format('one',
-    'two'"
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file{}{}'.format('one',
-<point>'two'"
       (snakemake-indent-line)
       (buffer-string))))
   (should
@@ -351,39 +409,6 @@ rule abc:
    (string=
     "
 rule abc:
-    output:
-        'file{}{}'.format('one',
-    "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output:
-        'file{}{}'.format('one',
-<point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-
-  ;; On non-naked field key cycle indentation between
-  ;; `snakemake-indent-field-offset' and column of previous field
-  ;; value.  If point is before any text on the line, move it to the
-  ;; start of the text instead.
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file'
-    "
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file'
-<point>"
-      (snakemake-indent-line)
-      (buffer-string))))
-  (should
-   (string=
-    "
-rule abc:
     output: 'file'
             "
     (snakemake-with-temp-text
@@ -392,7 +417,6 @@ rule abc:
     output: 'file'
 <point>"
       (snakemake-indent-line)
-      (snakemake-indent-line)
       (buffer-string))))
   (should
    (string=
@@ -404,23 +428,8 @@ rule abc:
         "
 rule abc:
     output: 'file'
-<point>"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (snakemake-indent-line)
-      (buffer-string))))
-  (should
-   (string=
-    "
-rule abc:
-    output: 'file'
-    'text'"
-    (snakemake-with-temp-text
-        "
-rule abc:
-    output: 'file'
-<point>'text'"
-      (snakemake-indent-line)
+             <point>"
+      (snakemake-indent-line 'prev)
       (buffer-string))))
   (should
    (string=
@@ -434,14 +443,13 @@ rule abc:
     output: 'file'
 <point>'text'"
       (snakemake-indent-line)
-      (snakemake-indent-line)
       (buffer-string))))
   (should
    (string=
     "
 rule abc:
     output: 'file'
-    'text' "
+            'text' "
     (snakemake-with-temp-text
         "
 rule abc:
@@ -454,7 +462,7 @@ rule abc:
     "
 rule abc:
     output: 'file'
-  "
+            "
     (snakemake-with-temp-text
         "
 rule abc:
@@ -472,12 +480,9 @@ rule abc:
         "
 rule abc:
     output: 'file'
-<point>  'text'"
-      (snakemake-indent-line)
-      (snakemake-indent-line)
+<point>            'text'"
+      (snakemake-indent-line 'prev)
       (buffer-string))))
-
-  ;; Indent body of run field according to Python mode.
   (should
    (string=
     "
@@ -503,6 +508,21 @@ rule abc:
     output:"
     (snakemake-with-temp-text
         "
+<point>rule abc:
+input: 'infile'
+output:"
+      (indent-region (point) (point-max))
+      (buffer-string))))
+  (should
+   (string=
+    "
+if True:
+    rule abc:
+        input: 'infile'
+        output:"
+    (snakemake-with-temp-text
+        "
+if True:
 <point>rule abc:
 input: 'infile'
 output:"
@@ -612,115 +632,6 @@ subworkflow otherworkflow:
 <point>    workdir: '../path/to/otherworkflow'
     snakefile: '../path/to/otherworkflow/Snakefile'"
     (should (snakemake-in-rule-or-subworkflow-block-p))))
-
-(ert-deftest snakemake-test-first-field-line-p ()
-  (snakemake-with-temp-text
-      "
-rule abc:
-<point>"
-    (should (snakemake-first-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-<point>    output: 'file'"
-    (should (snakemake-first-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output:
-<point>"
-    (should-not (snakemake-first-field-line-p))))
-
-(ert-deftest snakemake-test-below-naked-field-p ()
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output:
-<point>"
-    (should (snakemake-below-naked-field-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: 'file'
-<point>"
-    (should-not (snakemake-below-naked-field-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: <point>"
-    (should-not (snakemake-below-naked-field-p))))
-
-(ert-deftest snakemake-test-naked-field-line-p ()
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output:
-<point>"
-    (should (snakemake-naked-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output:
-        'file',
-         <point>"
-    (should (snakemake-naked-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: <point>"
-    (should (snakemake-naked-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: 'file'
-<point>"
-    (should-not (snakemake-naked-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    input:
-        'infile'
-    output: 'file'
-<point>"
-    (should-not (snakemake-naked-field-line-p))))
-
-(ert-deftest snakemake-test-run-field-line-p ()
-  (snakemake-with-temp-text
-      "
-rule abc:
-    run:
-<point>"
-    (should (snakemake-run-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    run:
-        with file:
-<point>"
-    (should (snakemake-run-field-line-p)))
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: 'file'
-<point>"
-    (should-not (snakemake-run-field-line-p))))
-
-(ert-deftest snakemake-test-previous-field-value-column ()
-  (should (= 12
-             (snakemake-with-temp-text
-                 "
-rule abc:
-    output: 'file'
-<point>"
-               (snakemake-previous-field-value-column))))
-  (should (= 12
-             (snakemake-with-temp-text
-                 "
-rule abc:
-    output: 'file',
-            'another'
-<point>"
-               (snakemake-previous-field-value-column)))))
 
 
 ;;; snakemake.el
