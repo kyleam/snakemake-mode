@@ -329,7 +329,7 @@ This function returns a list for consistency with other
 target-returning functions, but any non-nil return value is
 currently limited to a single-item list."
   (when (and (derived-mode-p 'snakemake-mode)
-             (snakemake-in-rule-or-subworkflow-block-p))
+             (snakemake-block-bounds))
     (save-excursion
       (end-of-line)
       (re-search-backward snakemake-rule-or-subworkflow-re)

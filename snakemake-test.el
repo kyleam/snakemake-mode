@@ -565,73 +565,15 @@ x = [1,
      (indent-region (point) (point-max))
      (buffer-string)))))
 
-;;;; Other
+;;;; Info and navigation
 
-(ert-deftest snakemake-test-in-rule-or-subworkflow-block-p ()
-  ;; At top of block
-  (snakemake-with-temp-text
-      "
-<point>rule abc:
-    output: 'file'"
-    (should (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; Body of block
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: <point>'file'"
-    (should (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; First blank line after
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: 'file'
-<point>"
-    (should (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; Second blank line after
-  (snakemake-with-temp-text
-      "
-rule abc:
-    output: 'file'
-
-<point>"
-    (should-not (snakemake-in-rule-or-subworkflow-block-p)))
-
-
-  ;; Blank line in docstring
-  (snakemake-with-temp-text
-      "
-rule abc:
-     \"\"\"docstring header
-
-     docstring line
-     \"\"\"
-    output: 'file'<point>"
-    (should (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; Before
-  (snakemake-with-temp-text
-      "<point>
+(ert-deftest snakemake-test-block-bounds ()
+  (should-not
+   (snakemake-with-temp-text
+       "
 rule abc:
     output: 'file'"
-    (should-not (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; At beginning of buffer
-  (snakemake-with-temp-text
-      "\
-rule abc:
-    output: 'file'<point>"
-    (should (snakemake-in-rule-or-subworkflow-block-p)))
-
-  ;; Subworkflow
-  (snakemake-with-temp-text
-      "
-subworkflow otherworkflow:
-<point>    workdir: '../path/to/otherworkflow'
-    snakefile: '../path/to/otherworkflow/Snakefile'"
-    (should (snakemake-in-rule-or-subworkflow-block-p))))
+     (snakemake-block-bounds))))
 
 
 ;;; snakemake.el

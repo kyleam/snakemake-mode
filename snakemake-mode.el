@@ -132,6 +132,33 @@
   "Regexp matching a call to a builtin Snakemake function.")
 
 
+;;; Info and navigation
+
+(defun snakemake-block-bounds ()
+  "Return bounds of rule or subworkflow block at point."
+  (save-excursion
+    (save-restriction
+      (prog-widen)
+      (let ((pos (point)))
+        (end-of-line)
+        (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
+             (let ((rule-start (or (match-beginning 1)
+                                   (match-beginning 3)))
+                   (rule-indent (current-indentation))
+                   rule-end)
+               (beginning-of-line)
+               (forward-line)
+               (while (and (or (< rule-indent (current-indentation))
+                               (looking-at-p "^\\s-*$"))
+                           (or (not (eobp))
+                               (progn (setq rule-end (point-max))
+                                      nil)))
+                 (setq rule-end (line-end-position))
+                 (forward-line))
+               (when (<= rule-start pos rule-end)
+                 (cons rule-start rule-end))))))))
+
+
 ;;; Indentation
 
 (defun snakemake--calculate-indentation (&optional previous)
@@ -223,24 +250,6 @@ returned."
   (snakemake-indent-line
    (and (memq this-command python-indent-trigger-commands)
         (eq last-command this-command))))
-
-(defun snakemake-in-rule-or-subworkflow-block-p ()
-  "Return non-nil if point is in block or on first blank line following one."
-  (let ((blank-p (lambda nil
-                   (and (looking-at-p "^\\s-*$")
-                        ;; Ignore newlines in docstrings.
-                        (not (nth 3 (syntax-ppss)))))))
-    (save-excursion
-      (beginning-of-line)
-      (when (funcall blank-p)
-        (forward-line -1))
-      (catch 'in-block
-        (while (not (funcall blank-p))
-          (cond ((looking-at-p snakemake-rule-or-subworkflow-re)
-                 (throw 'in-block t))
-                ((bobp)
-                 (throw 'in-block nil)))
-          (forward-line -1))))))
 
 
 ;;; Imenu
