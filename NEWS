@@ -19,6 +19,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 - ~beginning-of-defun~ and ~end-of-defun~ implementations for rule
   blocks are now defined.
 
+- Rule blocks are now recognized by ~add-log-current-defun~.
+
 * v0.4.0
 
 ** New features

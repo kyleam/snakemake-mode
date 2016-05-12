@@ -681,6 +681,34 @@ rule xyz:
               (snakemake-end-of-block)
               (buffer-substring (point-min) (point))))))
 
+(ert-deftest snakemake-test-block-or-defun-name ()
+  (should
+   (string= "abc"
+            (snakemake-with-temp-text
+                "
+rule abc:
+<point>    output: 'file'
+"
+              (snakemake-block-or-defun-name))))
+  (should
+   (string= "xyz"
+            (snakemake-with-temp-text
+                "
+rule abc:
+    output: 'file'
+
+<point>def xyz():
+    pass
+"
+              (snakemake-block-or-defun-name))))
+  (should-not
+   (snakemake-with-temp-text
+       "
+rule abc:
+    output: 'file'
+"
+     (snakemake-block-or-defun-name))))
+
 
 ;;; snakemake.el
 

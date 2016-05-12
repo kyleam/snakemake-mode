@@ -206,6 +206,23 @@ forward rather than backward."
   "Move to end of current rule block or function."
   (or (snakemake-end-of-block)
       (python-nav-end-of-defun)))
+
+(defun snakemake-block-name ()
+  "Return rule name for current block."
+  (let ((bounds (snakemake-block-bounds)))
+    (when bounds
+      (save-excursion
+        (goto-char (car bounds))
+        (and (looking-at snakemake-rule-or-subworkflow-re)
+             (match-string-no-properties 2))))))
+
+(defun snakemake-block-or-defun-name ()
+  "Return name of current rule or function.
+This function is appropriate to use as the value of
+`add-log-current-defun-function'."
+  (or (snakemake-block-name)
+      (python-info-current-defun)))
+
 
 ;;; Indentation
 
@@ -400,6 +417,8 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
        #'snakemake-beginning-of-defun)
   (set (make-local-variable 'end-of-defun-function)
        #'snakemake-end-of-defun)
+  (set (make-local-variable 'add-log-current-defun-function)
+       #'python-info-current-defun)
 
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
