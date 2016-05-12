@@ -418,7 +418,7 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
   (set (make-local-variable 'end-of-defun-function)
        #'snakemake-end-of-defun)
   (set (make-local-variable 'add-log-current-defun-function)
-       #'python-info-current-defun)
+       #'snakemake-block-or-defun-name)
 
   (set (make-local-variable 'font-lock-defaults)
        `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
