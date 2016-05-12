@@ -328,16 +328,13 @@ target.
 This function returns a list for consistency with other
 target-returning functions, but any non-nil return value is
 currently limited to a single-item list."
-  (when (and (derived-mode-p 'snakemake-mode)
-             (snakemake-block-bounds))
-    (save-excursion
-      (end-of-line)
-      (re-search-backward snakemake-rule-or-subworkflow-re)
-      (let ((rule (and (string= (match-string-no-properties 1) "rule")
-                       (match-string-no-properties 2))))
-        (when rule
-          (and (or (not targets-only) (snakemake-check-target rule))
-               (list rule)))))))
+  (when (derived-mode-p 'snakemake-mode)
+    (let* ((info (snakemake-block-info))
+           (rule (and (equal (nth 0 info) "rule")
+                      (nth 1 info))))
+      (when rule
+        (and (or (not targets-only) (snakemake-check-target rule))
+             (list rule))))))
 
 (defun snakemake--prompt (prompt default)
   (concat prompt

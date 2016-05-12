@@ -134,29 +134,32 @@
 
 ;;; Info and navigation
 
-(defun snakemake-block-bounds ()
-  "Return bounds of rule or subworkflow block at point."
+(defun snakemake-block-info ()
+  "Return description of rule or subworkflow block at point."
   (save-excursion
     (save-restriction
       (prog-widen)
       (let ((pos (point)))
         (end-of-line)
         (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
-             (let ((rule-start (or (match-beginning 1)
-                                   (match-beginning 3)))
+             (let ((type (or (match-string-no-properties 1)
+                             "rule"))
+                   (name (match-string-no-properties 2))
+                   (start (or (match-beginning 1)
+                              (match-beginning 3)))
                    (rule-indent (current-indentation))
-                   rule-end)
+                   end)
                (beginning-of-line)
                (forward-line)
                (while (and (or (< rule-indent (current-indentation))
                                (looking-at-p "^\\s-*$"))
                            (or (not (eobp))
-                               (progn (setq rule-end (point-max))
+                               (progn (setq end (point-max))
                                       nil)))
-                 (setq rule-end (line-end-position))
+                 (setq end (line-end-position))
                  (forward-line))
-               (when (<= rule-start pos rule-end)
-                 (cons rule-start rule-end))))))))
+               (when (<= start pos end)
+                 (list type name start end))))))))
 
 (defun snakemake-beginning-of-block (&optional arg)
   "Move to beginning of rule block.
@@ -176,9 +179,8 @@ forward rather than backward."
 
 (defun snakemake-end-of-block ()
   "Move to end of rule or subworkflow block."
-  (let ((bounds (snakemake-block-bounds)))
-    (when bounds
-      (goto-char (cdr bounds)))))
+  (let ((end (nth 3 (snakemake-block-info))))
+    (when end (goto-char end))))
 
 (defun snakemake-beginning-of-defun (&optional arg)
   "Move to beginning of current rule block or function.
@@ -207,20 +209,11 @@ forward rather than backward."
   (or (snakemake-end-of-block)
       (python-nav-end-of-defun)))
 
-(defun snakemake-block-name ()
-  "Return rule name for current block."
-  (let ((bounds (snakemake-block-bounds)))
-    (when bounds
-      (save-excursion
-        (goto-char (car bounds))
-        (and (looking-at snakemake-rule-or-subworkflow-re)
-             (match-string-no-properties 2))))))
-
 (defun snakemake-block-or-defun-name ()
   "Return name of current rule or function.
 This function is appropriate to use as the value of
 `add-log-current-defun-function'."
-  (or (snakemake-block-name)
+  (or (nth 1 (snakemake-block-info))
       (python-info-current-defun)))
 
 

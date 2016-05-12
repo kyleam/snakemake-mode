@@ -567,13 +567,13 @@ x = [1,
 
 ;;;; Info and navigation
 
-(ert-deftest snakemake-test-block-bounds ()
+(ert-deftest snakemake-test-block-info ()
   (should-not
    (snakemake-with-temp-text
        "
 rule abc:
     output: 'file'"
-     (snakemake-block-bounds))))
+     (snakemake-block-info))))
 
 (ert-deftest snakemake-test-beginning-of-block ()
   (should
