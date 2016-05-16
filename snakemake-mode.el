@@ -138,7 +138,7 @@
   "Return description of rule or subworkflow block at point."
   (save-excursion
     (save-restriction
-      (prog-widen)
+      (widen)
       (let ((pos (point)))
         (end-of-line)
         (and (re-search-backward snakemake-rule-or-subworkflow-re nil t)
@@ -234,11 +234,10 @@ returned."
                     ;; :after-block-start.
                     :after-block-start))
     (let* ((initial-indent (current-indentation))
-           (first-col (prog-first-column))
-           (goto-first-p (or (not previous) (= initial-indent first-col))))
+           (goto-first-p (or (not previous) (= initial-indent 0))))
       (save-excursion
         (save-restriction
-          (prog-widen)
+          (widen)
           (beginning-of-line)
           (if (or (looking-at-p (concat "^\\s-*" snakemake-field-key-re))
                   (looking-at-p (rx line-start
@@ -274,7 +273,7 @@ returned."
              ((save-excursion
                 (let ((above-indent (current-indentation))
                       field-indent)
-                  (when (> above-indent first-col)
+                  (when (> above-indent 0)
                     (while (and (not (bobp))
                                 (or (= above-indent
                                        (setq field-indent (current-indentation)))
