@@ -280,11 +280,13 @@ returned."
                                     (looking-at-p "^\\s-*$")))
                       (forward-line -1)))
                   (and (looking-at
-                        (concat snakemake-field-key-indented-re "\\s-*"))
+                        (concat snakemake-field-key-indented-re "\\s-*\\(.*\\)"))
                        (not (equal (match-string-no-properties 1)
                                    "run"))
                        (cond (goto-first-p
-                              (- (match-end 0) (line-beginning-position)))
+                              (if (equal (match-string-no-properties 2) "")
+                                  above-indent
+                                (- (match-beginning 2) (line-beginning-position))))
                              ((< field-indent initial-indent)
                               field-indent)))))))))))))
 

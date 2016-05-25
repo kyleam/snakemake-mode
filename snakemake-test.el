@@ -487,6 +487,21 @@ rule abc:
    (string=
     "
 rule abc:
+    output:
+        'file'
+        'text'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:
+        'file'
+<point>            'text'"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
     run:
         with this:
             "
