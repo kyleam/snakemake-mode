@@ -394,6 +394,19 @@ rule abc:
    (string=
     "
 rule abc:
+    output:  # comment
+        "
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:  # comment
+              <point>"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
     output:
         'file{}{}'.format('one',
                           'two'"
@@ -494,6 +507,21 @@ rule abc:
         "
 rule abc:
     output:
+        'file'
+<point>            'text'"
+      (snakemake-indent-line)
+      (buffer-string))))
+  (should
+   (string=
+    "
+rule abc:
+    output:  # comment
+        'file'
+        'text'"
+    (snakemake-with-temp-text
+        "
+rule abc:
+    output:  # comment
         'file'
 <point>            'text'"
       (snakemake-indent-line)

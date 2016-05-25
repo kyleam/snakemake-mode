@@ -255,7 +255,8 @@ returned."
             (skip-chars-backward " \t\n")
             (beginning-of-line)
             (cond
-             ((cl-some (lambda (re) (looking-at-p (concat re "\\s-*$")))
+             ((cl-some (lambda (re)
+                         (looking-at-p (concat re "\\s-*\\(?:#.*\\)?$")))
                        (list snakemake-field-key-indented-re
                              snakemake-rule-or-subworkflow-re
                              snakemake-toplevel-command-re))
@@ -284,9 +285,11 @@ returned."
                        (not (equal (match-string-no-properties 1)
                                    "run"))
                        (cond (goto-first-p
-                              (if (equal (match-string-no-properties 2) "")
-                                  above-indent
-                                (- (match-beginning 2) (line-beginning-position))))
+                              (let ((field-val (match-string-no-properties 2)))
+                                (if (or (equal field-val "")
+                                        (string-match-p "\\`#" field-val))
+                                    above-indent
+                                  (- (match-beginning 2) (line-beginning-position)))))
                              ((< field-indent initial-indent)
                               field-indent)))))))))))))
 
