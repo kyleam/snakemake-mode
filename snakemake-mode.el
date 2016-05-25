@@ -78,12 +78,10 @@
       (zero-or-more space)
       (or (and (group symbol-start (or "rule" "subworkflow"))
                " "
-               (group (one-or-more (or (syntax word) (syntax symbol))))
-               (zero-or-more space)
-               ":")
-          (and (group symbol-start "rule")
-               (zero-or-more space)
-               ":")))
+               (group (one-or-more (or (syntax word) (syntax symbol))))               )
+          (group symbol-start "rule"))
+      (zero-or-more space)
+      ":")
   "Regexp matching a rule or subworkflow.")
 
 (defconst snakemake-toplevel-command-re
