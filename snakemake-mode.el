@@ -73,61 +73,67 @@
 
 ;;; Regexp
 
+(eval-and-compile
+  (defconst snakemake-rx-constituents
+    `((named-rule . ,(rx (and (group symbol-start (or "rule" "subworkflow"))
+                              " "
+                              (group (one-or-more
+                                      (or (syntax word) (syntax symbol)))))))
+      (anon-rule . ,(rx symbol-start "rule"))
+      (field-key . ,(rx symbol-start
+                        (or "benchmark"
+                            "input"
+                            "log"
+                            "message"
+                            "output"
+                            "params"
+                            "priority"
+                            "resources"
+                            "run"
+                            "script"
+                            "shadow"
+                            "shell"
+                            "threads"
+                            "version"
+                            "wrapper"
+                            ;; Keys for subworkflow blocks
+                            "snakefile"
+                            "workdir")
+                        symbol-end))
+      (sm-command . ,(rx symbol-start
+                         (or "configfile"
+                             "include"
+                             "onerror"
+                             "onsuccess"
+                             "ruleorder"
+                             "workdir")
+                         symbol-end))
+      (sm-func . ,(rx symbol-start
+                      (or "dynamic"
+                          "expand"
+                          "protected"
+                          "shell"
+                          "temp"
+                          "touch")
+                      symbol-end)))
+    "Snakemake-specific sexps for `snakemake-rx'.")
+
+  (defmacro snakemake-rx (&rest regexps)
+    "Specialized `rx' for Snakemake mode."
+    ;; Modified from `python-rx'.
+    (let ((rx-constituents (append snakemake-rx-constituents rx-constituents)))
+      (cond ((null regexps)
+             (error "No regexp"))
+            ((cdr regexps)
+             (rx-to-string `(and ,@regexps) t))
+            (t
+             (rx-to-string (car regexps) t))))))
+
 (defconst snakemake-rule-or-subworkflow-re
-  (rx line-start
-      (zero-or-more space)
-      (or (and (group symbol-start (or "rule" "subworkflow"))
-               " "
-               (group (one-or-more (or (syntax word) (syntax symbol))))               )
-          (group symbol-start "rule"))
-      (zero-or-more space)
-      ":")
+  (snakemake-rx line-start (zero-or-more space)
+                (or named-rule (group anon-rule))
+                (zero-or-more space) ":")
   "Regexp matching a rule or subworkflow.")
-
-(defconst snakemake-toplevel-command-re
-  (rx line-start
-      (zero-or-more space)
-      (group (or "configfile"
-                 "include"
-                 "onerror"
-                 "onsuccess"
-                 "ruleorder"
-                 "workdir"))
-      (zero-or-more space) ":")
-  "Regexp matching other toplevel commands aside from 'rule'.")
-
-(defconst snakemake-field-key-re
-  (rx (group symbol-start
-             (or "benchmark"
-                 "input"
-                 "log"
-                 "message"
-                 "output"
-                 "params"
-                 "priority"
-                 "resources"
-                 "run"
-                 "script"
-                 "shadow"
-                 "shell"
-                 "threads"
-                 "version"
-                 "wrapper"
-                 ;; Keys for subworkflow blocks
-                 "snakefile"
-                 "workdir"))
-      (zero-or-more space) ":")
-  "Regexp matching a rule or subworkflow field key.")
-
-(defconst snakemake-field-key-indented-re
-  (concat  "^\\s-+" snakemake-field-key-re)
-  "Regexp matching a field key, including indentation.")
-
-(defconst snakemake-builtin-function-re
-  (rx (group symbol-start
-             (or "expand" "shell" "protected" "temp" "dynamic" "touch"))
-      (zero-or-more space) "(")
-  "Regexp matching a call to a builtin Snakemake function.")
 
 
 ;;; Info and navigation
@@ -237,10 +243,10 @@ returned."
         (save-restriction
           (widen)
           (beginning-of-line)
-          (if (or (looking-at-p (concat "^\\s-*" snakemake-field-key-re))
-                  (looking-at-p (rx line-start
-                                    (zero-or-more space)
-                                    (or "\"\"\"" "'''"))))
+          (if (looking-at-p (snakemake-rx
+                             line-start (zero-or-more space)
+                             (or (and field-key (zero-or-more space) ":")
+                                 (or "\"\"\"" "'''"))))
               (and goto-first-p
                    (let (rule-indent)
                      (while (not (or rule-indent (bobp)))
@@ -253,17 +259,22 @@ returned."
             (skip-chars-backward " \t\n")
             (beginning-of-line)
             (cond
-             ((cl-some (lambda (re)
-                         (looking-at-p (concat re "\\s-*\\(?:#.*\\)?$")))
-                       (list snakemake-field-key-indented-re
-                             snakemake-rule-or-subworkflow-re
-                             snakemake-toplevel-command-re))
+             ((looking-at-p (snakemake-rx
+                             line-start (zero-or-more space)
+                             (or named-rule anon-rule
+                                 field-key sm-command)
+                             (zero-or-more space) ":" (zero-or-more space)
+                             (zero-or-one (and "#" (zero-or-more not-newline)))
+                             line-end))
               (let ((above-indent (current-indentation)))
                 (cond (goto-first-p
                        (+ above-indent snakemake-indent-value-offset))
                       ((< above-indent initial-indent)
                        above-indent))))
-             ((looking-at (concat snakemake-field-key-indented-re "\\s-*"))
+             ((looking-at (snakemake-rx
+                           line-start (zero-or-more space)
+                           field-key
+                           (zero-or-more space) ":" (zero-or-more space)))
               (let ((above-indent (current-indentation)))
                 (cond (goto-first-p
                        (- (match-end 0) (line-beginning-position)))
@@ -278,8 +289,12 @@ returned."
                                        (setq field-indent (current-indentation)))
                                     (looking-at-p "^\\s-*$")))
                       (forward-line -1)))
-                  (and (looking-at
-                        (concat snakemake-field-key-indented-re "\\s-*\\(.*\\)"))
+                  (and (looking-at (snakemake-rx
+                                    line-start (zero-or-more space)
+                                    (group field-key)
+                                    (zero-or-more space) ":"
+                                    (zero-or-more space)
+                                    (group (zero-or-more not-newline))))
                        (not (equal (match-string-no-properties 1)
                                    "run"))
                        (cond (goto-first-p
@@ -396,9 +411,16 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
      (1 font-lock-keyword-face nil 'lax)
      (2 font-lock-function-name-face nil 'lax)
      (3 font-lock-keyword-face nil 'lax))
-    (,snakemake-toplevel-command-re 1 font-lock-keyword-face)
-    (,snakemake-builtin-function-re 1 font-lock-builtin-face)
-    (,snakemake-field-key-indented-re 1 font-lock-type-face)))
+    (,(snakemake-rx line-start (zero-or-more space)
+                (group sm-command)
+                (zero-or-more space) ":")
+     1 font-lock-keyword-face)
+    (,(snakemake-rx (group sm-func) (zero-or-more space) "(")
+     1 font-lock-builtin-face)
+    (,(snakemake-rx line-start (one-or-more space)
+                (group field-key)
+                (zero-or-more space) ":")
+     1 font-lock-type-face)))
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
