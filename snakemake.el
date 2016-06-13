@@ -524,8 +524,10 @@ Snakemake-graph mode is a minor mode that provides a key,
 
 (defun snakemake-compile-targets (targets args)
   "Run non-interactive `compile' with 'snakemake [ARGS] -- TARGETS'."
-  (let ((default-directory (snakemake-snakefile-directory)))
-    (compile (snakemake--define-compile-command targets args))))
+  (let* ((default-directory (snakemake-snakefile-directory))
+         (cmd (snakemake--define-compile-command targets args)))
+    (compile cmd)
+    (push cmd compile-history)))
 
 ;;;###autoload
 (defun snakemake-build-targets-at-point (&optional args)
