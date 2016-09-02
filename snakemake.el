@@ -262,11 +262,11 @@ The file list is determined by the output of
   "Return non-nil if TARGET is a valid target for DIRECTORY's Snakefile."
   (snakemake-with-cache directory (target)
     (with-temp-buffer
-      (snakemake-insert-output "--quiet" "--dryrun" target)
-      (goto-char (point-min))
-      ;; Lean towards misclassifying targets as valid rather than
-      ;; silently dropping valid targets as invalid.
-      (not (re-search-forward snakemake-invalid-target-re nil t)))))
+      (when (= 0 (snakemake-insert-output "--quiet" "--dryrun" target))
+        (goto-char (point-min))
+        ;; Lean towards misclassifying targets as valid rather than
+        ;; silently dropping valid targets as invalid.
+        (not (re-search-forward snakemake-invalid-target-re nil t))))))
 
 (declare-function org-element-context "org-element")
 (declare-function org-element-property "org-element")
