@@ -206,7 +206,7 @@ with DIRECTORY and the Snakefile's modification time."
 
 (defun snakemake-insert-output (&rest args)
   "Call `snakemake-program' with ARGS and insert output."
-  (apply #'call-process snakemake-program nil t nil args))
+  (apply #'call-process snakemake-program nil '(t nil) nil args))
 
 (defun snakemake--split-rules (type)
   "Return rules of TYPE.
@@ -242,7 +242,7 @@ The file list is determined by the output of
     (snakemake-with-cache directory ("target-files")
       (split-string
        (with-temp-buffer
-         (if (= 0 (call-process snakemake-file-target-program nil t))
+         (if (= 0 (call-process snakemake-file-target-program nil '(t nil)))
              (buffer-string)
            (error "Error finding file targets")))))))
 
@@ -410,7 +410,7 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
       (setq default-directory dir)
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (apply #'call-process snakemake-program nil t nil
+        (apply #'call-process snakemake-program nil '(t nil) nil
                (if rule-graph "--rulegraph" "--dag")
                rules))
       (image-mode)
@@ -460,7 +460,7 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
       (setq default-directory dir)
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (setq ret-val (call-process snakemake-program nil t nil
+        (setq ret-val (call-process snakemake-program nil '(t nil) nil
                                     (if rule-graph "--rulegraph" "--dag")
                                     "--snakefile" file)))
       (if (= 0 ret-val)
