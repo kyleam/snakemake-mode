@@ -206,23 +206,31 @@ with DIRECTORY and the Snakefile's modification time."
 
 (defun snakemake-insert-output (&rest args)
   "Call `snakemake-program' with ARGS and insert output."
-  (apply #'call-process snakemake-program nil '(t nil) nil args))
+  (apply #'call-process snakemake-program nil t nil args))
+
+(defun snakemake--split-lines (str &optional remove-num)
+  (cl-remove-if
+   (lambda (x) (or (and remove-num (string-match-p "\\`[0-9]+\\'" x))
+                   ;; There is not a clean separation of stderr/stdout
+                   ;; streams for warnings, so this is a hacky way to
+                   ;; filter non-target lines from the output.
+                   (string-match-p " " x)))
+   (split-string str "\n" t)))
 
 (defun snakemake--split-rules (type)
   "Return rules of TYPE.
 TYPE can be `all' or `target'."
-  (cl-remove-if
-   (lambda (x) (string-match-p "\\`[0-9]+\\'" x))
-   (split-string
-    (with-temp-buffer
-      (if (= 0 (snakemake-insert-output
-                "--nocolor"
-                (cl-case type
-                  (all "--list")
-                  (target "--list-target-rules")
-                  (t (user-error "Invalid rule type: %s" type)))))
-          (buffer-string)
-        (error "Error finding rules"))))))
+  (snakemake--split-lines
+   (with-temp-buffer
+     (if (= 0 (snakemake-insert-output
+               "--nocolor"
+               (cl-case type
+                 (all "--list")
+                 (target "--list-target-rules")
+                 (t (user-error "Invalid rule type: %s" type)))))
+         (buffer-string)
+       (error "Error finding rules")))
+   t))
 
 (defun snakemake-all-rules (&optional directory)
   "Return list of rules for DIRECTORY's Snakefile."
@@ -240,9 +248,9 @@ The file list is determined by the output of
 `snakemake-file-target-program'."
   (when snakemake-file-target-program
     (snakemake-with-cache directory ("target-files")
-      (split-string
+      (snakemake--split-lines
        (with-temp-buffer
-         (if (= 0 (call-process snakemake-file-target-program nil '(t nil)))
+         (if (= 0 (call-process snakemake-file-target-program nil t))
              (buffer-string)
            (error "Error finding file targets")))))))
 
@@ -413,7 +421,7 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
       (setq default-directory dir)
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (apply #'call-process snakemake-program nil '(t nil) nil
+        (apply #'call-process snakemake-program nil t nil
                (if rule-graph "--rulegraph" "--dag")
                rules))
       (image-mode)
@@ -463,7 +471,7 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
       (setq default-directory dir)
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (setq ret-val (call-process snakemake-program nil '(t nil) nil
+        (setq ret-val (call-process snakemake-program nil t nil
                                     (if rule-graph "--rulegraph" "--dag")
                                     "--snakefile" file)))
       (if (= 0 ret-val)

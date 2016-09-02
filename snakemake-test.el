@@ -763,6 +763,29 @@ rule abc:
                      (let ((default-directory "subdir"))
                        (snakemake-snakefile-directory)))))))
 
+(ert-deftest snakemake-test-split-lines ()
+  (should
+   (equal '("abc" "123")
+          (snakemake--split-lines "\
+abc
+123
+two words")))
+  (should
+   (equal '("abc" "123")
+          (snakemake--split-lines "\
+abc
+
+123
+
+two words")))
+  (should
+   (equal '("abc")
+          (snakemake--split-lines "\
+abc
+123
+two words"
+                                  'remove-num))))
+
 (ert-deftest snakemake-test-rule-targets ()
   (should
    (equal '("aa" "bb" "dd_subdir")
