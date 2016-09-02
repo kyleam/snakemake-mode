@@ -246,6 +246,10 @@ The file list is determined by the output of
              (buffer-string)
            (error "Error finding file targets")))))))
 
+(defconst snakemake-invalid-target-re
+  (regexp-opt (list "MissingRuleException"
+                    "RuleException")))
+
 (defun snakemake-check-target (target &optional directory)
   "Return non-nil if TARGET is a valid target for DIRECTORY's Snakefile."
   (snakemake-with-cache directory (target)
@@ -254,8 +258,7 @@ The file list is determined by the output of
       (goto-char (point-min))
       ;; Lean towards misclassifying targets as valid rather than
       ;; silently dropping valid targets as invalid.
-      (not (looking-at (regexp-opt (list "MissingRuleException"
-                                         "RuleException")))))))
+      (not (looking-at snakemake-invalid-target-re)))))
 
 (declare-function org-element-context "org-element")
 (declare-function org-element-property "org-element")
