@@ -95,6 +95,7 @@
                             "shell"
                             "threads"
                             "version"
+                            "wildcard_constraints"
                             "wrapper"
                             ;; Keys for subworkflow blocks
                             "snakefile"
@@ -106,6 +107,7 @@
                              "onerror"
                              "onsuccess"
                              "ruleorder"
+                             "wildcard_constraints"
                              "workdir")
                          symbol-end))
       (sm-func . ,(rx symbol-start
