@@ -812,7 +812,15 @@ two words"
      (snakemake-check-target "aa.out")))
   (should-not
    (snakemake-with-temp-dir
-     (snakemake-check-target "aa.out.not-target"))))
+     (snakemake-check-target "aa.out.not-target")))
+  ;; Write-protected targets should be recognized as valid targets
+  ;; despite Snakemake throwing an error.
+  (should
+   (snakemake-with-temp-dir
+     (with-temp-file "bb.out" (insert ""))
+     (set-file-modes "bb.out" (file-modes-symbolic-to-number "u=r"))
+     (with-temp-file "aa.out" (insert ""))
+     (snakemake-check-target "bb.out"))))
 
 (ert-deftest snakemake-test-org-link-file-targets ()
   (should (equal '("/path/to/fname")

@@ -258,15 +258,24 @@ The file list is determined by the output of
   (regexp-opt (list "MissingRuleException"
                     "RuleException")))
 
+(defconst snakemake-valid-target-re "ProtectedOutputException"
+  "Regular expression indicating valid target.
+If this matches, the target will be considered valid even if the
+exit status is non-zero.")
+
 (defun snakemake-check-target (target &optional directory)
   "Return non-nil if TARGET is a valid target for DIRECTORY's Snakefile."
   (snakemake-with-cache directory (target)
     (with-temp-buffer
-      (when (= 0 (snakemake-insert-output "--quiet" "--dryrun" target))
+      (let ((ex-code (snakemake-insert-output "--quiet" "--dryrun" target)))
         (goto-char (point-min))
-        ;; Lean towards misclassifying targets as valid rather than
-        ;; silently dropping valid targets as invalid.
-        (not (re-search-forward snakemake-invalid-target-re nil t))))))
+        (cond
+         ((re-search-forward snakemake-valid-target-re nil t))
+         ((and (= ex-code 0)
+               ;; Lean towards misclassifying targets as valid rather
+               ;; than silently dropping valid targets as invalid.
+               (not (re-search-forward snakemake-invalid-target-re
+                                       nil t)))))))))
 
 (declare-function org-element-context "org-element")
 (declare-function org-element-property "org-element")
