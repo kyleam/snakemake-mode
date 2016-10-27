@@ -222,12 +222,12 @@ with DIRECTORY and the Snakefile's modification time."
 TYPE can be `all' or `target'."
   (snakemake--split-lines
    (with-temp-buffer
-     (if (= 0 (snakemake-insert-output
-               "--nocolor"
-               (cl-case type
-                 (all "--list")
-                 (target "--list-target-rules")
-                 (t (user-error "Invalid rule type: %s" type)))))
+     (if (zerop (snakemake-insert-output
+                 "--nocolor"
+                 (cl-case type
+                   (all "--list")
+                   (target "--list-target-rules")
+                   (t (user-error "Invalid rule type: %s" type)))))
          (buffer-string)
        (error "Error finding rules")))
    t))
@@ -250,7 +250,7 @@ The file list is determined by the output of
     (snakemake-with-cache directory ("target-files")
       (snakemake--split-lines
        (with-temp-buffer
-         (if (= 0 (call-process snakemake-file-target-program nil t))
+         (if (zerop (call-process snakemake-file-target-program nil t))
              (buffer-string)
            (error "Error finding file targets")))))))
 
@@ -271,7 +271,7 @@ exit status is non-zero.")
         (goto-char (point-min))
         (cond
          ((re-search-forward snakemake-valid-target-re nil t))
-         ((and (= ex-code 0)
+         ((and (zerop ex-code)
                ;; Lean towards misclassifying targets as valid rather
                ;; than silently dropping valid targets as invalid.
                (not (re-search-forward snakemake-invalid-target-re
@@ -483,7 +483,7 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
         (setq ret-val (call-process snakemake-program nil t nil
                                     (if rule-graph "--rulegraph" "--dag")
                                     "--snakefile" file)))
-      (if (= 0 ret-val)
+      (if (zerop ret-val)
           (progn (image-mode)
                  (snakemake-graph-mode)
                  (setq snakemake-graph-id file))

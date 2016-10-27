@@ -171,7 +171,7 @@
   "Move to beginning of rule block.
 With ARG, do it that many times.  Negative ARG signals to move
 forward rather than backward."
-  (when (or (null arg) (= arg 0))
+  (when (or (null arg) (zerop arg))
     (setq arg 1))
   (funcall (if (> arg 0)
                #'re-search-backward
@@ -192,7 +192,7 @@ forward rather than backward."
   "Move to beginning of current rule block or function.
 With ARG, do it that many times.  Negative ARG signals to move
 forward rather than backward."
-  (when (or (null arg) (= arg 0))
+  (when (or (null arg) (zerop arg))
     (setq arg 1))
   (let ((choose-fn (if (> arg 0) #'max #'min))
         (cands (delq nil
@@ -240,7 +240,7 @@ returned."
                     ;; :after-block-start.
                     :after-block-start))
     (let* ((initial-indent (current-indentation))
-           (goto-first-p (or (not previous) (= initial-indent 0))))
+           (goto-first-p (or (not previous) (zerop initial-indent))))
       (save-excursion
         (save-restriction
           (widen)
