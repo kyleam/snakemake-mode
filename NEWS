@@ -4,7 +4,7 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 ** New features
 
-- The 'wildcard_constraints' keyword (new in Snakemake v3.8.0)  is now
+- The 'wildcard_constraints' keyword (new in Snakemake v3.8.0) is now
   recognized.
 
 * v0.5.0
