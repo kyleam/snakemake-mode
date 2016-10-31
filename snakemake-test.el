@@ -60,8 +60,7 @@ Also, mute messages."
        (unwind-protect
            (let ((default-directory snakemake-test-dir))
              (mkdir "subdir")
-             (with-temp-file "Snakefile"
-               (insert "\
+             (write-region "\
 
 rule aa:
     output: \"aa.out\"
@@ -85,7 +84,9 @@ rule dd_subdir:
 rule:
     input: \"anon.in\"
     output: \"anon.out\"
-    shell: \"cat {input} > {output}\""))
+    shell: \"cat {input} > {output}\""
+                           nil
+                           "Snakefile")
              ,@body)
          (delete-directory snakemake-test-dir t)))))
 (def-edebug-spec snakemake-with-temp-dir (body))
@@ -817,9 +818,9 @@ two words"
   ;; despite Snakemake throwing an error.
   (should
    (snakemake-with-temp-dir
-     (with-temp-file "bb.out" (insert ""))
+     (write-region "" nil "bb.out")
      (set-file-modes "bb.out" (file-modes-symbolic-to-number "u=r"))
-     (with-temp-file "aa.out" (insert ""))
+     (write-region "" nil "aa.out")
      (snakemake-check-target "bb.out"))))
 
 (ert-deftest snakemake-test-org-link-file-targets ()
