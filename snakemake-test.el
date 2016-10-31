@@ -814,6 +814,12 @@ two words"
   (should-not
    (snakemake-with-temp-dir
      (snakemake-check-target "aa.out.not-target")))
+  (should
+   (snakemake-with-temp-dir
+     (snakemake-check-target "aa")))
+  (should-not
+   (snakemake-with-temp-dir
+     (snakemake-check-target "cc_wildcards")))
   ;; Write-protected targets should be recognized as valid targets
   ;; despite Snakemake throwing an error.
   (should
