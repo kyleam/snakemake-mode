@@ -820,6 +820,29 @@ two words"
   (should-not
    (snakemake-with-temp-dir
      (snakemake-check-target "cc_wildcards")))
+  ;; Errors with the Snakefile, like ambiguous rules and syntax
+  ;; errors, should be reported as errors rather than treated as
+  ;; invalid targets.
+  (should-error
+   (snakemake-with-temp-dir
+     (write-region "\ndef incomplete_def:"
+                   nil
+                   "Snakefile"
+                   'append)
+     (snakemake-check-target "aa"))
+   :type 'snakemake-error)
+  (should-error
+   (snakemake-with-temp-dir
+     (write-region "\
+
+rule aa:
+    output: \"aa.ambig.out\"
+    shell: \"echo aa.ambig.content > {output}\""
+                   nil
+                   "Snakefile"
+                   'append)
+     (snakemake-check-target "aa"))
+   :type 'snakemake-error)
   ;; Write-protected targets should be recognized as valid targets
   ;; despite Snakemake throwing an error.
   (should

@@ -266,10 +266,6 @@ The file list is determined by the output of
              (buffer-string)
            (snakemake--display-error)))))))
 
-(defconst snakemake-invalid-target-re
-  (regexp-opt (list "MissingRuleException"
-                    "RuleException")))
-
 (defconst snakemake-valid-target-re "ProtectedOutputException"
   "Regular expression indicating valid target.
 If this matches, the target will be considered valid even if the
@@ -280,14 +276,17 @@ exit status is non-zero.")
   (snakemake-with-cache directory (target)
     (with-temp-buffer
       (let ((ex-code (snakemake-insert-output "--quiet" "--dryrun" target)))
-        (goto-char (point-min))
-        (cond
-         ((re-search-forward snakemake-valid-target-re nil t))
-         ((and (zerop ex-code)
-               ;; Lean towards misclassifying targets as valid rather
-               ;; than silently dropping valid targets as invalid.
-               (not (re-search-forward snakemake-invalid-target-re
-                                       nil t)))))))))
+        (or (zerop ex-code)
+            (progn (goto-char (point-min))
+                   (re-search-forward snakemake-valid-target-re nil t))
+            ;; A non-zero exit status could indicate that TARGET is
+            ;; invalid, but it could also be the result of an issue
+            ;; like a syntax error or an ambiguous rule.  To check
+            ;; this, see whether `snakemake-all-rules' signals a
+            ;; `snakemake-error'.  This avoids relying on parsing
+            ;; Snakemake exception output, which isn't stable across
+            ;; Snakemake versions.
+            (progn (snakemake-all-rules) nil))))))
 
 (declare-function org-element-context "org-element")
 (declare-function org-element-property "org-element")
