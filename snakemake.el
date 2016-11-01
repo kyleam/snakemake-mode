@@ -204,6 +204,18 @@ with DIRECTORY and the Snakefile's modification time."
              result)
          ,cached))))
 
+(define-error 'snakemake-error "Snakemake process error")
+
+(defconst snakemake-error-buffer "*Snakemake process error*")
+
+(defun snakemake--display-error ()
+  (ignore-errors (kill-buffer snakemake-error-buffer))
+  (let ((buf (get-buffer-create snakemake-error-buffer)))
+    (copy-to-buffer buf (point-min) (point-max))
+    (with-current-buffer buf (help-mode))
+    (display-buffer buf)
+    (signal 'snakemake-error nil)))
+
 (defun snakemake-insert-output (&rest args)
   "Call `snakemake-program' with ARGS and insert output."
   (apply #'call-process snakemake-program nil t nil args))
@@ -229,7 +241,7 @@ TYPE can be `all' or `target'."
                    (target "--list-target-rules")
                    (t (user-error "Invalid rule type: %s" type)))))
          (buffer-string)
-       (error "Error finding rules")))
+       (snakemake--display-error)))
    t))
 
 (defun snakemake-all-rules (&optional directory)
@@ -252,7 +264,7 @@ The file list is determined by the output of
        (with-temp-buffer
          (if (zerop (call-process snakemake-file-target-program nil t))
              (buffer-string)
-           (error "Error finding file targets")))))))
+           (snakemake--display-error)))))))
 
 (defconst snakemake-invalid-target-re
   (regexp-opt (list "MissingRuleException"
