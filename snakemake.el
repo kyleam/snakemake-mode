@@ -204,6 +204,18 @@ with DIRECTORY and the Snakefile's modification time."
              result)
          ,cached))))
 
+(define-error 'snakemake-error "Snakemake process error")
+
+(defconst snakemake-error-buffer "*Snakemake process error*")
+
+(defun snakemake--display-error ()
+  (ignore-errors (kill-buffer snakemake-error-buffer))
+  (let ((buf (get-buffer-create snakemake-error-buffer)))
+    (copy-to-buffer buf (point-min) (point-max))
+    (with-current-buffer buf (help-mode))
+    (display-buffer buf)
+    (signal 'snakemake-error nil)))
+
 (defun snakemake-insert-output (&rest args)
   "Call `snakemake-program' with ARGS and insert output."
   (apply #'call-process snakemake-program nil t nil args))
@@ -229,7 +241,7 @@ TYPE can be `all' or `target'."
                    (target "--list-target-rules")
                    (t (user-error "Invalid rule type: %s" type)))))
          (buffer-string)
-       (error "Error finding rules")))
+       (snakemake--display-error)))
    t))
 
 (defun snakemake-all-rules (&optional directory)
@@ -252,11 +264,7 @@ The file list is determined by the output of
        (with-temp-buffer
          (if (zerop (call-process snakemake-file-target-program nil t))
              (buffer-string)
-           (error "Error finding file targets")))))))
-
-(defconst snakemake-invalid-target-re
-  (regexp-opt (list "MissingRuleException"
-                    "RuleException")))
+           (snakemake--display-error)))))))
 
 (defconst snakemake-valid-target-re "ProtectedOutputException"
   "Regular expression indicating valid target.
@@ -268,14 +276,17 @@ exit status is non-zero.")
   (snakemake-with-cache directory (target)
     (with-temp-buffer
       (let ((ex-code (snakemake-insert-output "--quiet" "--dryrun" target)))
-        (goto-char (point-min))
-        (cond
-         ((re-search-forward snakemake-valid-target-re nil t))
-         ((and (zerop ex-code)
-               ;; Lean towards misclassifying targets as valid rather
-               ;; than silently dropping valid targets as invalid.
-               (not (re-search-forward snakemake-invalid-target-re
-                                       nil t)))))))))
+        (or (zerop ex-code)
+            (progn (goto-char (point-min))
+                   (re-search-forward snakemake-valid-target-re nil t))
+            ;; A non-zero exit status could indicate that TARGET is
+            ;; invalid, but it could also be the result of an issue
+            ;; like a syntax error or an ambiguous rule.  To check
+            ;; this, see whether `snakemake-all-rules' signals a
+            ;; `snakemake-error'.  This avoids relying on parsing
+            ;; Snakemake exception output, which isn't stable across
+            ;; Snakemake versions.
+            (progn (snakemake-all-rules) nil))))))
 
 (declare-function org-element-context "org-element")
 (declare-function org-element-property "org-element")
