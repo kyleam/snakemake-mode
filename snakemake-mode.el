@@ -82,6 +82,7 @@
       (anon-rule . ,(rx symbol-start "rule"))
       (field-key . ,(rx symbol-start
                         (or "benchmark"
+                            "conda"
                             "input"
                             "log"
                             "message"
