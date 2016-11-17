@@ -114,10 +114,14 @@
       (sm-builtin . ,(rx symbol-start
                          (or "dynamic"
                              "expand"
+                             "input"
+                             "output"
+                             "params"
                              "protected"
                              "shell"
                              "temp"
-                             "touch")
+                             "touch"
+                             "wildcards")
                          symbol-end))
       ;; Deprecated.  Use `sm-builtin' instead.
       (sm-func . sm-builtin))
