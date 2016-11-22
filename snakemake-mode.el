@@ -111,14 +111,20 @@
                              "wildcard_constraints"
                              "workdir")
                          symbol-end))
-      (sm-func . ,(rx symbol-start
-                      (or "dynamic"
-                          "expand"
-                          "protected"
-                          "shell"
-                          "temp"
-                          "touch")
-                      symbol-end)))
+      (sm-builtin . ,(rx symbol-start
+                         (or "dynamic"
+                             "expand"
+                             "input"
+                             "output"
+                             "params"
+                             "protected"
+                             "shell"
+                             "temp"
+                             "touch"
+                             "wildcards")
+                         symbol-end))
+      ;; Deprecated.  Use `sm-builtin' instead.
+      (sm-func . sm-builtin))
     "Snakemake-specific sexps for `snakemake-rx'.")
 
   (defmacro snakemake-rx (&rest regexps)
@@ -414,12 +420,11 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
      (1 font-lock-keyword-face nil 'lax)
      (2 font-lock-function-name-face nil 'lax)
      (3 font-lock-keyword-face nil 'lax))
-    (,(snakemake-rx (group sm-func) (zero-or-more space) "(")
-     1 font-lock-builtin-face)
     (,(snakemake-rx line-start (one-or-more space)
                 (group field-key)
                 (zero-or-more space) ":")
      1 font-lock-type-face)
+    (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)
     (,(snakemake-rx line-start (zero-or-more space)
                 (group sm-command)
                 (zero-or-more space) ":")
