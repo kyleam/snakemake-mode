@@ -327,7 +327,7 @@ or `region-end', respectively."
                                               (or end (region-end))))))))
 
 (defun snakemake-thingatpt-file-targets ()
-  "Return file at point accordinng `thing-at-point'.
+  "Return file at point according to `thing-at-point'.
 This function returns a list for consistency with other
 target-returning functions, but any non-nil return value is
 currently limited to a single-item list."
