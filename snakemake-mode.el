@@ -371,11 +371,12 @@ label."
 (defun snakemake-mode-setup-mmm ()
   "Set up MMM mode to highlight embedded R code.
 
-You must have the R-strings either within a R(''' ''') function call or a code
-block delimited with '''#r and ''' (triple double-quotes also accepted).
+You must have the R-strings either within a R(''' ''') function
+call or a code block delimited with '''#r and '''.  (Triple
+double-quotes also accepted.)
 
 For automatic highlighting of embedded regions, you need to set
-`mmm-global-mode` to 'maybe in your setup file."
+`mmm-global-mode` to 'maybe."
   (unless (require 'mmm-mode nil t)
     (user-error "You need to install mmm-mode"))
 
