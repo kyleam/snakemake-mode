@@ -549,7 +549,7 @@ Snakemake-graph mode is a minor mode that provides a key,
  '(snakemake . ("^SyntaxError in line \\([0-9]+\\) of \\(.*[^A-z]Snakefile\\):$"
                 2 1)))
 
-(defun snakemake--define-compile-command (targets args)
+(defun snakemake--make-command (targets args)
   (mapconcat #'identity
              `(,snakemake-program ,@args "--" ,@targets)
              " "))
@@ -557,7 +557,7 @@ Snakemake-graph mode is a minor mode that provides a key,
 (defun snakemake-compile-targets (targets args)
   "Run non-interactive `compile' with 'snakemake [ARGS] -- TARGETS'."
   (let ((default-directory (snakemake-snakefile-directory))
-        (cmd (snakemake--define-compile-command targets args)))
+        (cmd (snakemake--make-command targets args)))
     (compile cmd)
     (push cmd compile-history)))
 
@@ -599,7 +599,7 @@ $ snakemake [ARGS] -- <rule>"
 
 $ snakemake [ARGS] -- <targets>"
   (interactive (list (snakemake-arguments)))
-  (let ((compile-command (snakemake--define-compile-command
+  (let ((compile-command (snakemake--make-command
                           (or (snakemake-file-targets-at-point)
                               (snakemake-rule-at-point)
                               (list ""))
