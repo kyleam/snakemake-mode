@@ -119,8 +119,9 @@ an absolute path or, if no root is found, nil.  When nil, only
 Snakefiles in the current directory will be detected."
   :type '(radio (const :tag "None" nil)
                 (function-item vc-root-dir)
-                (function-item projectile-project-root))
-  :package-version '(snakemake-mode . "0.4.0"))
+                (function-item projectile-project-root)
+                function)
+  :package-version '(snakemake-mode . "1.2.0"))
 
 (defcustom snakemake-file-targets-hook
   '(snakemake-region-file-targets
