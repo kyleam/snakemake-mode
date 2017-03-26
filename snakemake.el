@@ -39,7 +39,7 @@
 ;;     names from Dired, Org links, and general text under point that
 ;;     looks like a file name.
 ;;
-;; snakemake-compile
+;; snakemake-build
 ;;
 ;;     This action leads to an interactive `compile' call that allows
 ;;     you to edit the command before it is run.
@@ -598,7 +598,7 @@ $ snakemake [ARGS] -- <rule>"
    args))
 
 ;;;###autoload
-(defun snakemake-compile (&optional args)
+(defun snakemake-build (&optional args)
   "Read `compile' command for building targets.
 
 $ snakemake [ARGS] -- <targets>"
@@ -611,6 +611,8 @@ $ snakemake [ARGS] -- <targets>"
         (compilation-read-command t)
         (default-directory (snakemake-snakefile-directory)))
     (call-interactively #'compile)))
+
+(define-obsolete-function-alias 'snakemake-compile 'snakemake-build "1.2.0")
 
 ;;;###autoload (autoload 'snakemake-popup "snakemake" nil t)
 (magit-define-popup snakemake-popup
@@ -626,7 +628,7 @@ $ snakemake [ARGS] -- <targets>"
   '((?a "Allowed rules" "--allowed-rules " snakemake-read-rules)
     (?j "Number of jobs" "-j"))
   :actions
-  '((?c "Compile" snakemake-compile) nil nil
+  '((?c "Edit and run command" snakemake-build) nil nil
     (?p "Build target at point" snakemake-build-targets-at-point)
     (?f "Build file" snakemake-build-file-target)
     (?r "Build rule" snakemake-build-rule-target))
