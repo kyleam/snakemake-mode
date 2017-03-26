@@ -375,9 +375,9 @@ currently limited to a single-item list."
 (defun snakemake-read-file-target ()
   "Read a file target.
 If `snakemake-file-target-program' is non-nil, use it to generate
-a collection file targets to prompt with.  Otherwise, just read a
-file name, adjusting the returned file name's path relative to
-`snakemake-snakefile-directory'."
+a collection of file targets to prompt with.  Otherwise, just
+read a file name, adjusting the returned file name's path
+relative to `snakemake-snakefile-directory'."
   (let ((default (car (snakemake-file-targets-at-point t))))
     (if snakemake-file-target-program
         (completing-read
