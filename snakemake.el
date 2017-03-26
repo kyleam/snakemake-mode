@@ -541,12 +541,14 @@ Snakemake-graph mode is a minor mode that provides a key,
   :keymap snakemake-graph-mode-map)
 
 
-;;; Compilation commands
+;;; Commands for calling Snakemake
 
 (defun snakemake--make-command (targets args)
   (mapconcat #'identity
              `(,snakemake-program ,@args "--" ,@targets)
              " "))
+
+;;;; Compilation interface
 
 (add-to-list 'compilation-error-regexp-alist 'snakemake)
 (add-to-list
@@ -560,6 +562,8 @@ Snakemake-graph mode is a minor mode that provides a key,
         (cmd (snakemake--make-command targets args)))
     (compile cmd)
     (push cmd compile-history)))
+
+;;;; General interface
 
 ;;;###autoload
 (defun snakemake-build-targets-at-point (&optional args)
