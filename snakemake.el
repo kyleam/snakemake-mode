@@ -543,16 +543,16 @@ Snakemake-graph mode is a minor mode that provides a key,
 
 ;;; Compilation commands
 
+(defun snakemake--make-command (targets args)
+  (mapconcat #'identity
+             `(,snakemake-program ,@args "--" ,@targets)
+             " "))
+
 (add-to-list 'compilation-error-regexp-alist 'snakemake)
 (add-to-list
  'compilation-error-regexp-alist-alist
  '(snakemake . ("^SyntaxError in line \\([0-9]+\\) of \\(.*[^A-z]Snakefile\\):$"
                 2 1)))
-
-(defun snakemake--make-command (targets args)
-  (mapconcat #'identity
-             `(,snakemake-program ,@args "--" ,@targets)
-             " "))
 
 (defun snakemake-compile-targets (targets args)
   "Run non-interactive `compile' with 'snakemake [ARGS] -- TARGETS'."
