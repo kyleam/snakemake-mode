@@ -566,12 +566,11 @@ Snakemake-graph mode is a minor mode that provides a key,
 
 $ snakemake [ARGS] -- <targets>"
   (interactive (list (snakemake-arguments)))
-  (let ((default-directory (snakemake-snakefile-directory)))
-    (snakemake-compile-targets
-     (or (snakemake-file-targets-at-point 'check)
-         (snakemake-rule-at-point 'target)
-         (user-error "No target found at point"))
-     args)))
+  (snakemake-compile-targets
+   (or (snakemake-file-targets-at-point 'check)
+       (snakemake-rule-at-point 'target)
+       (user-error "No target found at point"))
+   args))
 
 ;;;###autoload
 (defun snakemake-build-file-target (&optional args)
