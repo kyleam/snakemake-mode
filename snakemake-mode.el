@@ -1,6 +1,6 @@
 ;;; snakemake-mode.el --- Major mode for editing Snakemake files  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014-2016 Kyle Meyer
+;; Copyright (C) 2014-2017 Kyle Meyer
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; URL: https://github.com/kyleam/snakemake-mode

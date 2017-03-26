@@ -1,6 +1,6 @@
 ;;; snakemake.el --- Call Snakemake from Emacs       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016 Kyle Meyer
+;; Copyright (C) 2016-2017 Kyle Meyer
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; URL: https://github.com/kyleam/snakemake-mode
