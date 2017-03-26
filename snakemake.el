@@ -117,9 +117,9 @@
 This function will be called with no arguments and should return
 an absolute path or, if no root is found, nil.  When nil, only
 Snakefiles in the current directory will be detected."
-  :type '(choice (const :tag "None" nil)
-                 (function :tag "Use VC" vc-root-dir)
-                 (function :tag "Use Projectile" projectile-project-root))
+  :type '(radio (const :tag "None" nil)
+                (function-item vc-root-dir)
+                (function-item projectile-project-root))
   :package-version '(snakemake-mode . "0.4.0"))
 
 (defcustom snakemake-file-targets-hook
