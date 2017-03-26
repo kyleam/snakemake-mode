@@ -1,5 +1,15 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* master (unreleased)
+
+** New features
+
+- ~snakemake-popup~ commands learned to call Snakemake through a
+  terminal rather than through ~compile~.  This allows a persistent
+  environment to be maintained between Snakemake calls, which is
+  useful for running Snakemake in isolated environments created by
+  tools like Guix.
+
 * v1.1.0
 
 ** New features

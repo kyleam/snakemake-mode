@@ -25,9 +25,9 @@
 ;; `snakemake-popup', which you should consider giving a global key
 ;; binding.
 ;;
-;; The popup currently includes four actions, all which lead to
-;; `compile' being called with "snakemake ...".  What's different
-;; between the actions is how targets are selected.
+;; The popup currently includes four actions, all which lead to a
+;; Snakemake call.  What's different between the actions is how
+;; targets are selected.
 ;;
 ;; snakemake-build-targets-at-point
 ;;
@@ -41,8 +41,7 @@
 ;;
 ;; snakemake-build
 ;;
-;;     This action leads to an interactive `compile' call that allows
-;;     you to edit the command before it is run.
+;;     This action allows you to edit the command before running it.
 ;;
 ;;     It tries to guess what the target name should be, but it
 ;;     doesn't verify if this target is actually a build target.  This
@@ -75,6 +74,10 @@
 ;; which to look for a Snakefile if there isn't one in the current
 ;; directory.
 ;;
+;; By default, commands are executed through `compile'.  However, a
+;; terminal can be created with `snakemake-term-start', in which case
+;; commands are sent there instead.
+;;
 ;; In addition to the popup commands, there are commands for showing
 ;; and saving the dependency graph of a target.  The command
 ;; `snakemake-graph' displays the graph in a buffer.  From this
@@ -88,6 +91,7 @@
 
 (require 'cl-lib)
 (require 'compile)
+(require 'term)
 (require 'magit-popup)
 
 (require 'snakemake-mode)
@@ -104,6 +108,11 @@
   "Command to run Snakemake."
   :type 'string
   :package-version '(snakemake-mode . "0.4.0"))
+
+(defcustom snakemake-shell-file-name shell-file-name
+  "Program used by `ansi-term' to start a terminal."
+  :type 'string
+  :package-version '(snakemake-mode . "1.2.0"))
 
 (defcustom snakemake-file-target-program
   (executable-find "snakemake-file-targets")
@@ -563,7 +572,64 @@ Snakemake-graph mode is a minor mode that provides a key,
     (compile cmd)
     (push cmd compile-history)))
 
+;;;; Terminal interface
+
+(defun snakemake-term--name ()
+  (concat "snakemake-terminal: " (abbreviate-file-name default-directory)))
+
+(defun snakemake-term-process ()
+  "Return the terminal process of the current directory."
+  (get-process (concat "*" (snakemake-term--name) "*")))
+
+(defun snakemake-term-start ()
+  "Start a terminal session for the current Snakefile directory.
+
+The main advantage of using a terminal is that it allows for a
+persistent environment between Snakemake calls, which is useful
+for running Snakemake in isolated environments created by tools
+like Guix.
+
+To do so, `snakemake-shell-file-name' should be set to a script
+that starts a shell with the desired environment.  For example,
+to set up an enviroment with Guix, `snakemake-shell-file-name'
+could point to a script that runs
+
+    guix environment -l manifest.scm --ad-hoc snakemake --pure"
+  (interactive)
+  (let ((default-directory (snakemake-snakefile-directory)))
+    (unless (snakemake-term-process)
+      (ansi-term snakemake-shell-file-name (snakemake-term--name)))))
+
+(defun snakemake-term-send (string)
+  "Send STRING to the terminal for the current directory."
+  (let* ((proc (or (snakemake-term-process)
+                   (user-error "No active terminal.  Start with %s"
+                               (substitute-command-keys
+                                "`\\[snakemake-term-start]'"))))
+         (buf (process-buffer proc)))
+    (unless (get-buffer-window buf)
+      (display-buffer buf))
+    (term-send-string proc (concat string "\n"))
+    (with-current-buffer buf
+      (goto-char (process-mark proc)))))
+
+(defun snakemake-term-build-targets (targets args)
+  "Send 'snakemake [ARGS] -- TARGETS' to the terminal."
+  (let ((default-directory (snakemake-snakefile-directory)))
+    (snakemake-term-send (snakemake--make-command targets args))))
+
 ;;;; General interface
+
+(defun snakemake-build-targets (targets args)
+  "Run 'snakemake [ARGS] -- TARGETS'.
+If a terminal is associated with the current Snakefile directory,
+send the command there.  Otherwise, run the command with
+`compile'."
+  (funcall (if (snakemake-term-process)
+               #'snakemake-term-build-targets
+             #'snakemake-compile-targets)
+           targets
+           args))
 
 ;;;###autoload
 (defun snakemake-build-targets-at-point (&optional args)
@@ -571,7 +637,7 @@ Snakemake-graph mode is a minor mode that provides a key,
 
 $ snakemake [ARGS] -- <targets>"
   (interactive (list (snakemake-arguments)))
-  (snakemake-compile-targets
+  (snakemake-build-targets
    (or (snakemake-file-targets-at-point 'check)
        (snakemake-rule-at-point 'target)
        (user-error "No target found at point"))
@@ -583,7 +649,7 @@ $ snakemake [ARGS] -- <targets>"
 
 $ snakemake [ARGS] -- <file>"
   (interactive (list (snakemake-arguments)))
-  (snakemake-compile-targets
+  (snakemake-build-targets
    (list (snakemake-read-file-target))
    args))
 
@@ -593,24 +659,35 @@ $ snakemake [ARGS] -- <file>"
 
 $ snakemake [ARGS] -- <rule>"
   (interactive (list (snakemake-arguments)))
-  (snakemake-compile-targets
+  (snakemake-build-targets
    (list (snakemake-read-rule 'targets))
    args))
 
 ;;;###autoload
 (defun snakemake-build (&optional args)
-  "Read `compile' command for building targets.
+  "Read and run a Snakemake command for building targets.
+
+If a terminal is associated with the current Snakefile directory,
+send the command there.  Otherwise, run the command with
+`compile'.
+
+To start a terminal for the current Snakefile directory, run
+`\\[snakemake-term-start]'.
 
 $ snakemake [ARGS] -- <targets>"
   (interactive (list (snakemake-arguments)))
-  (let ((compile-command (snakemake--make-command
-                          (or (snakemake-file-targets-at-point)
-                              (snakemake-rule-at-point)
-                              (list ""))
-                          args))
-        (compilation-read-command t)
+  (let ((cmd (snakemake--make-command
+              (or (snakemake-file-targets-at-point)
+                  (snakemake-rule-at-point)
+                  (list ""))
+              args))
         (default-directory (snakemake-snakefile-directory)))
-    (call-interactively #'compile)))
+    (if (snakemake-term-process)
+        (snakemake-term-send
+         (read-from-minibuffer "Command to send to terminal: " cmd))
+      (let ((compile-command cmd)
+            (compilation-read-command t))
+        (call-interactively #'compile)))))
 
 (define-obsolete-function-alias 'snakemake-compile 'snakemake-build "1.2.0")
 
