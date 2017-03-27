@@ -192,7 +192,8 @@ Which Snakefile, if any, is current is determined by the value of
                (when topdir
                  (and (file-exists-p (expand-file-name "Snakefile" topdir))
                       topdir))))
-        (user-error "No Snakefile found for %s" default-directory))))
+        (user-error "No Snakefile found for %s"
+                    (abbreviate-file-name default-directory)))))
 
 (defvar snakemake--cache (make-hash-table :test #'equal))
 (defmacro snakemake-with-cache (directory cache-info &rest body)
