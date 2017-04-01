@@ -121,6 +121,21 @@
                  (string :tag "Program"))
   :package-version '(snakemake-mode . "0.4.0"))
 
+(defcustom snakemake-always-use-term nil
+  "Whether commands should be sent to the terminal only.
+
+When nil, commands are sent to the terminal if there is an active
+terminal for the current Snakefile directory.  If there isn't an
+active terminal, commands are executed through `compile'.
+
+When this variable is non-nil, always try to send the command to
+the terminal.  If no terminal is found, the command will be
+aborted with a message telling you to first run
+`\\[snakemake-term-start]'."
+  :type 'boolean
+  :safe #'booleanp
+  :package-version '(snakemake-mode . "1.2.0"))
+
 (defcustom snakemake-root-dir-function nil
   "Function used to find root directory of the current \"project\".
 This function will be called with no arguments and should return
@@ -581,6 +596,9 @@ Snakemake-graph mode is a minor mode that provides a key,
   "Return the terminal process of the current directory."
   (get-process (concat "*" (snakemake-term--name) "*")))
 
+(defun snakemake-term-use-p ()
+  (or snakemake-always-use-term (snakemake-term-process)))
+
 ;;;###autoload
 (defun snakemake-term-start ()
   "Start a terminal session for the current Snakefile directory.
@@ -629,7 +647,7 @@ If a terminal is associated with the current Snakefile directory,
 send the command there.  Otherwise, run the command with
 `compile'."
   (let ((default-directory (snakemake-snakefile-directory)))
-    (funcall (if (snakemake-term-process)
+    (funcall (if (snakemake-term-use-p)
                  #'snakemake-term-build-targets
                #'snakemake-compile-targets)
              targets
@@ -686,7 +704,7 @@ $ snakemake [ARGS] -- <targets>"
                   (list ""))
               args))
         (default-directory (snakemake-snakefile-directory)))
-    (if (snakemake-term-process)
+    (if (snakemake-term-use-p)
         (snakemake-term-send
          (read-from-minibuffer "Command to send to terminal: " cmd))
       (let ((compile-command cmd)
