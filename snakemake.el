@@ -581,6 +581,7 @@ Snakemake-graph mode is a minor mode that provides a key,
   "Return the terminal process of the current directory."
   (get-process (concat "*" (snakemake-term--name) "*")))
 
+;;;###autoload
 (defun snakemake-term-start ()
   "Start a terminal session for the current Snakefile directory.
 
