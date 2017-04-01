@@ -568,8 +568,7 @@ Snakemake-graph mode is a minor mode that provides a key,
 
 (defun snakemake-compile-targets (targets args)
   "Run non-interactive `compile' with 'snakemake [ARGS] -- TARGETS'."
-  (let ((default-directory (snakemake-snakefile-directory))
-        (cmd (snakemake--make-command targets args)))
+  (let ((cmd (snakemake--make-command targets args)))
     (compile cmd)
     (push cmd compile-history)))
 
@@ -616,8 +615,7 @@ could point to a script that runs
 
 (defun snakemake-term-build-targets (targets args)
   "Send 'snakemake [ARGS] -- TARGETS' to the terminal."
-  (let ((default-directory (snakemake-snakefile-directory)))
-    (snakemake-term-send (snakemake--make-command targets args))))
+  (snakemake-term-send (snakemake--make-command targets args)))
 
 ;;;; General interface
 
@@ -626,11 +624,12 @@ could point to a script that runs
 If a terminal is associated with the current Snakefile directory,
 send the command there.  Otherwise, run the command with
 `compile'."
-  (funcall (if (snakemake-term-process)
-               #'snakemake-term-build-targets
-             #'snakemake-compile-targets)
-           targets
-           args))
+  (let ((default-directory (snakemake-snakefile-directory)))
+    (funcall (if (snakemake-term-process)
+                 #'snakemake-term-build-targets
+               #'snakemake-compile-targets)
+             targets
+             args)))
 
 ;;;###autoload
 (defun snakemake-build-targets-at-point (&optional args)
