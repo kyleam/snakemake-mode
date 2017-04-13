@@ -439,6 +439,17 @@ targets."
                                        (snakemake-all-rules))
              " "))
 
+(defun snakemake-graph-workflow ()
+  (interactive)
+  """Creates a graph for the current snakefile."""
+  (let ((dot (shell-command-to-string "which dot")))
+    (when (equal dot "")
+      (error "You do not have dot (graphviz) on your emacs path!")))
+  (let* ((fname (buffer-file-name))
+         (graphname (concat (buffer-file-name) ".pdf"))
+         (graph-command (concat "snakemake --dag --snakefile " fname " | dot -Tpdf > " graphname)))
+    (shell-command graph-command)))
+
 
 ;;; Graphing commands
 
