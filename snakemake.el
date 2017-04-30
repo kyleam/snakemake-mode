@@ -530,23 +530,31 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
 
 (defun snakemake-graph-save ()
   "Save graph in current buffer to file.
+
 The graph will be processed by `snakemake-dot-program'.  The
 default extension of the output file is
 `snakemake-graph-default-extension', but you can enter any
-extension that the dot program supports."
+extension that the dot program supports.
+
+Return the name of the output file."
   (interactive)
   (unless snakemake-graph-id
     (user-error "Not in Snakemake graph buffer"))
   (let ((file (read-file-name "To file: " nil nil nil
                               (concat snakemake-graph-id
                                       snakemake-graph-default-extension))))
-    (unless (or (string-match-p "\\`\\s-*\\'" file)
-                (and (file-exists-p file)
-                     (not (y-or-n-p
-                           (concat file " already exists.  Overwrite?")))))
+    (cond
+     ((string-match-p "\\`\\s-*\\'" file)
+      (user-error "No output file specified"))
+     ((and (file-exists-p file)
+           (not (y-or-n-p
+                 (concat file " already exists.  Overwrite?"))))
+      (user-error "Aborted"))
+     (t
       (call-process-region (point-min) (point-max)
                            snakemake-dot-program nil (list :file file) nil
-                           "-T" (file-name-extension file)))))
+                           "-T" (file-name-extension file))
+      file))))
 
 (defvar snakemake-graph-mode-map
   (let ((map (make-sparse-keymap)))
