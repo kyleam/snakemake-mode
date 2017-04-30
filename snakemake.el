@@ -444,6 +444,13 @@ targets."
 
 (defvar-local snakemake-graph-id nil)
 
+(defun snakemake-graph--display ()
+  (require 'image)
+  (if (not (image-type-available-p 'imagemagick))
+      (find-file (snakemake-graph-save))
+    (image-mode)
+    (pop-to-buffer (current-buffer))))
+
 ;;;###autoload
 (defun snakemake-graph (rules &optional rule-graph)
   "Display graph for DAG of RULES.
@@ -470,10 +477,9 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
         (apply #'call-process snakemake-program nil t nil
                (if rule-graph "--rulegraph" "--dag")
                rules))
-      (image-mode)
       (snakemake-graph-mode)
       (setq snakemake-graph-id (mapconcat #'file-name-nondirectory rules "-"))
-      (pop-to-buffer (current-buffer)))))
+      (snakemake-graph--display))))
 
 ;;;###autoload
 (defun snakemake-graph-this-file (&optional rule-graph directory)
@@ -521,32 +527,40 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
                                     (if rule-graph "--rulegraph" "--dag")
                                     "--snakefile" file)))
       (if (zerop ret-val)
-          (progn (image-mode)
-                 (snakemake-graph-mode)
-                 (setq snakemake-graph-id file))
+          (progn (snakemake-graph-mode)
+                 (setq snakemake-graph-id file)
+                 (snakemake-graph--display))
         (goto-char (point-min))
-        (insert (format "Error in snakemake call from %s:\n\n" dir)))
-      (pop-to-buffer (current-buffer)))))
+        (insert (format "Error in snakemake call from %s:\n\n" dir))
+        (pop-to-buffer (current-buffer))))))
 
 (defun snakemake-graph-save ()
   "Save graph in current buffer to file.
+
 The graph will be processed by `snakemake-dot-program'.  The
 default extension of the output file is
 `snakemake-graph-default-extension', but you can enter any
-extension that the dot program supports."
+extension that the dot program supports.
+
+Return the name of the output file."
   (interactive)
   (unless snakemake-graph-id
     (user-error "Not in Snakemake graph buffer"))
   (let ((file (read-file-name "To file: " nil nil nil
                               (concat snakemake-graph-id
                                       snakemake-graph-default-extension))))
-    (unless (or (string-match-p "\\`\\s-*\\'" file)
-                (and (file-exists-p file)
-                     (not (y-or-n-p
-                           (concat file " already exists.  Overwrite?")))))
+    (cond
+     ((string-match-p "\\`\\s-*\\'" file)
+      (user-error "No output file specified"))
+     ((and (file-exists-p file)
+           (not (y-or-n-p
+                 (concat file " already exists.  Overwrite?"))))
+      (user-error "Aborted"))
+     (t
       (call-process-region (point-min) (point-max)
                            snakemake-dot-program nil (list :file file) nil
-                           "-T" (file-name-extension file)))))
+                           "-T" (file-name-extension file))
+      file))))
 
 (defvar snakemake-graph-mode-map
   (let ((map (make-sparse-keymap)))
