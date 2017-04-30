@@ -444,6 +444,13 @@ targets."
 
 (defvar-local snakemake-graph-id nil)
 
+(defun snakemake-graph--display ()
+  (require 'image)
+  (if (not (image-type-available-p 'imagemagick))
+      (find-file (snakemake-graph-save))
+    (image-mode)
+    (pop-to-buffer (current-buffer))))
+
 ;;;###autoload
 (defun snakemake-graph (rules &optional rule-graph)
   "Display graph for DAG of RULES.
@@ -470,10 +477,9 @@ $ snakemake --{dag,rulegraph} -- RULES | display"
         (apply #'call-process snakemake-program nil t nil
                (if rule-graph "--rulegraph" "--dag")
                rules))
-      (image-mode)
       (snakemake-graph-mode)
       (setq snakemake-graph-id (mapconcat #'file-name-nondirectory rules "-"))
-      (pop-to-buffer (current-buffer)))))
+      (snakemake-graph--display))))
 
 ;;;###autoload
 (defun snakemake-graph-this-file (&optional rule-graph directory)
@@ -521,12 +527,12 @@ $ snakemake -s <current file> --{dag,rulegraph} | display"
                                     (if rule-graph "--rulegraph" "--dag")
                                     "--snakefile" file)))
       (if (zerop ret-val)
-          (progn (image-mode)
-                 (snakemake-graph-mode)
-                 (setq snakemake-graph-id file))
+          (progn (snakemake-graph-mode)
+                 (setq snakemake-graph-id file)
+                 (snakemake-graph--display))
         (goto-char (point-min))
-        (insert (format "Error in snakemake call from %s:\n\n" dir)))
-      (pop-to-buffer (current-buffer)))))
+        (insert (format "Error in snakemake call from %s:\n\n" dir))
+        (pop-to-buffer (current-buffer))))))
 
 (defun snakemake-graph-save ()
   "Save graph in current buffer to file.
