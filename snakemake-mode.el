@@ -121,6 +121,7 @@
                              "shell"
                              "temp"
                              "touch"
+                             "unpack"
                              "wildcards")
                          symbol-end))
       ;; Deprecated.  Use `sm-builtin' instead.
