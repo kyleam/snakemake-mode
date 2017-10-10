@@ -1,5 +1,11 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* v1.3.0 (unreleased)
+
+** New features
+
+- ".smk" has been added as a suffix for Snakemake files.
+
 * v1.2.0
 
 ** New features

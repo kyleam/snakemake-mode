@@ -455,6 +455,8 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.\\(?:sm\\)?rules\\'" . snakemake-mode))
 ;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.smk\\'" . snakemake-mode))
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.snakefile\\'" . snakemake-mode))
 
 (provide 'snakemake-mode)
