@@ -99,6 +99,7 @@
                             "wildcard_constraints"
                             "wrapper"
                             ;; Keys for subworkflow blocks
+                            "configfile"
                             "snakefile"
                             "workdir")
                         symbol-end))
