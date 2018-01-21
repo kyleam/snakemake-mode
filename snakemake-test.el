@@ -1,6 +1,6 @@
 ;;; snakemake-test.el --- Test snakemake{,-mode}.el
 
-;; Copyright (C) 2015-2017 Kyle Meyer
+;; Copyright (C) 2015-2018 Kyle Meyer
 
 ;; Author:  Kyle Meyer <kyle@kyleam.com>
 
