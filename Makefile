@@ -9,7 +9,7 @@ elcs := $(patsubst %.el, %.elc, $(els))
 AUTOLOADS_FILE = snakemake-autoloads.el
 
 DASH_URL := https://raw.githubusercontent.com/magnars/dash.el/master/dash.el
-POPUP_URL := https://raw.githubusercontent.com/magit/magit/master/lisp/magit-popup.el
+POPUP_URL := https://raw.githubusercontent.com/magit/magit-popup/master/magit-popup.el
 
 .PHONY: all
 all: $(elcs) $(AUTOLOADS_FILE)
