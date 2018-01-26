@@ -94,6 +94,7 @@
                             "script"
                             "shadow"
                             "shell"
+                            "singularity"
                             "threads"
                             "version"
                             "wildcard_constraints"

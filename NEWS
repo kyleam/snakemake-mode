@@ -4,6 +4,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 ** New features
 
+- The 'singularity' keyword (new in Snakemake v4.2.0) is now
+  recognized.
+
 - ".smk" has been added as a suffix for Snakemake files.
 
 * v1.2.0
