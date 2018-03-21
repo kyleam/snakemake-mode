@@ -83,6 +83,7 @@
       (field-key . ,(rx symbol-start
                         (or "benchmark"
                             "conda"
+                            "cwl"
                             "input"
                             "log"
                             "message"

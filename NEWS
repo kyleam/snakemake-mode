@@ -1,5 +1,12 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* master (unreleased)
+
+** New features
+
+- The 'cwl' keyword (new in Snakemake v4.8.0) is now recognized.
+
+
 * v1.3.0
 
 ** New features
