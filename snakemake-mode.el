@@ -115,7 +115,8 @@
                              "workdir")
                          symbol-end))
       (sm-builtin . ,(rx symbol-start
-                         (or "dynamic"
+                         (or "ancient"
+                             "dynamic"
                              "expand"
                              "input"
                              "output"
