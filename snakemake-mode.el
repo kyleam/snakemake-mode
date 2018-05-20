@@ -111,6 +111,7 @@
                              "onerror"
                              "onsuccess"
                              "ruleorder"
+                             "singularity"
                              "wildcard_constraints"
                              "workdir")
                          symbol-end))
