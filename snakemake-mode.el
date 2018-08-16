@@ -382,7 +382,7 @@ call or a code block delimited with \"\"\"#r and \"\"\".  (Triple
 single-quotes also accepted.)
 
 For automatic highlighting of embedded regions, you need to set
-`mmm-global-mode` to `maybe'."
+`mmm-global-mode' to `maybe'."
   (unless (require 'mmm-mode nil t)
     (user-error "You need to install mmm-mode"))
 
