@@ -386,7 +386,7 @@ For automatic highlighting of embedded regions, you need to set
   (unless (require 'mmm-mode nil t)
     (user-error "You need to install mmm-mode"))
 
-  (when (unless mmm-global-mode)
+  (when (unless (bound-and-true-p mmm-global-mode))
     (display-warning 'snakemake-mode "To get automatic syntax highlighting of
 embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe."))
 
