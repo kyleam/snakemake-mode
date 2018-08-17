@@ -7,6 +7,11 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 - The 'cwl' keyword (new in Snakemake v4.8.0) and 'ancient' built-in
   are now recognized.
 
+** Other changes
+
+- The minimum Emacs version is now specified as 24.5.  Although the
+  previous specification was a looser "24", Snakemake's indentation
+  function is incompatible with Emacs 24.4 and below.
 
 * v1.3.0
 
