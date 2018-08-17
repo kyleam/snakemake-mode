@@ -123,6 +123,7 @@
                              "input"
                              "output"
                              "params"
+                             "pipe"
                              "protected"
                              "shell"
                              "temp"
