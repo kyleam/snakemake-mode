@@ -4,8 +4,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 ** New features
 
-- The 'cwl' keyword (new in Snakemake v4.8.0) and 'ancient' built-in
-  are now recognized.
+- The 'cwl' keyword (new in Snakemake v4.8.0), 'directory' (new in
+  Snakemake v5.2.0), and 'ancient' built-in are now recognized.
 
 ** Other changes
 

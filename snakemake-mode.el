@@ -117,6 +117,7 @@
                          symbol-end))
       (sm-builtin . ,(rx symbol-start
                          (or "ancient"
+                             "directory"
                              "dynamic"
                              "expand"
                              "input"
