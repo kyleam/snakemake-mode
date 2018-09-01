@@ -627,7 +627,7 @@ that starts a shell with the desired environment.  For example,
 to set up an enviroment with Guix, `snakemake-shell-file-name'
 could point to a script that runs
 
-    guix environment --pure -l guix.scm --ad-hoc snakemake
+    guix environment --pure -m manifest.scm --ad-hoc snakemake
 
 The file 'guix-snakemake-environment' in Snakemake mode's source
 directory can be used for this purpose."

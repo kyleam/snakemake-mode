@@ -8,4 +8,4 @@
 ### a file which should be located in the same directory as the
 ### current Snakefile.
 
-guix environment --pure -l guix.scm --ad-hoc snakemake
+guix environment --pure -m manifest.scm --ad-hoc snakemake
