@@ -84,6 +84,7 @@
                         (or "benchmark"
                             "conda"
                             "cwl"
+                            "group"
                             "input"
                             "log"
                             "message"
