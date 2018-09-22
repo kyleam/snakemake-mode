@@ -731,7 +731,8 @@ $ snakemake [ARGS] -- <targets>"
 (magit-define-popup snakemake-popup
   "Popup console for running Snakemake."
   :switches
-  '((?f "Force" "--force")
+  '((?c "Use conda" "--use-conda")
+    (?f "Force" "--force")
     (?i "Ignore temp()" "--notemp")
     (?n "Dry run" "--dryrun")
     (?p "Print shell commands" "-p")
