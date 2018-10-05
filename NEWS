@@ -6,7 +6,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - ~snakemake-popup~ now includes ~--use-conda~.
 - Additional Snakemake keywords are now recognized: 'group' keyword
-  (new in Snakemake v5.0) and 'localrules'.
+  (new in Snakemake v5.0), report (both the keyword and function; new
+  in Snakemake v5.1), and 'localrules'.
 
 * v1.4.0
 
