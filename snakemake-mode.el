@@ -109,6 +109,7 @@
       (sm-command . ,(rx symbol-start
                          (or "configfile"
                              "include"
+                             "localrules"
                              "onerror"
                              "onsuccess"
                              "ruleorder"
