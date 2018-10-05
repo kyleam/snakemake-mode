@@ -437,11 +437,11 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
                     (group field-key)
                     (zero-or-more space) ":")
      1 font-lock-type-face)
-    (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)
     (,(snakemake-rx line-start (zero-or-more space)
                     (group sm-command)
                     (zero-or-more space) ":")
-     1 font-lock-keyword-face)))
+     1 font-lock-keyword-face)
+    (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)))
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
