@@ -75,7 +75,8 @@
 
 (eval-and-compile
   (defconst snakemake-rx-constituents
-    `((named-rule . ,(rx (and (group symbol-start (or "rule" "subworkflow"))
+    `((named-rule . ,(rx (and (group symbol-start
+                                     (or "checkpoint" "rule" "subworkflow"))
                               " "
                               (group (one-or-more
                                       (or (syntax word) (syntax symbol)))))))
@@ -120,6 +121,7 @@
                          symbol-end))
       (sm-builtin . ,(rx symbol-start
                          (or "ancient"
+                             "checkpoints"
                              "directory"
                              "dynamic"
                              "expand"
