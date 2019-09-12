@@ -4,7 +4,7 @@
 ###
 ### If `snakemake-shell-file-name' points to this file,
 ### `snakemake-term-start' will start a terminal with an environment
-### that exposes snakemake and the dependencies defined in "guix.scm",
+### that exposes snakemake and the dependencies defined in "manifest.scm",
 ### a file which should be located in the same directory as the
 ### current Snakefile.
 
