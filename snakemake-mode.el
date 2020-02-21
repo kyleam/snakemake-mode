@@ -462,7 +462,8 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
        #'snakemake-block-or-defun-name)
 
   (set (make-local-variable 'font-lock-defaults)
-       `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
+       (cons (append snakemake-font-lock-keywords python-font-lock-keywords)
+             (cdr font-lock-defaults))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
