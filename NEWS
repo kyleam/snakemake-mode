@@ -4,6 +4,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 - The 'multiext' built-in (new in Snakemake v5.8.2) is now recognized.
 
+- The font-lock handling has been updated to be compatible with
+  python.el changes in Emacs 27.
+
 * v1.6.0
 
 - Checkpoints (new in Snakemake v5.4) are now recognized.
