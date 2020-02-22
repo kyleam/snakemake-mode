@@ -1,6 +1,6 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
-* unreleased
+* v1.7.0
 
 - The 'multiext' built-in (new in Snakemake v5.8.2) is now recognized.
 
