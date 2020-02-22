@@ -126,6 +126,7 @@
                              "dynamic"
                              "expand"
                              "input"
+                             "multiext"
                              "output"
                              "params"
                              "pipe"

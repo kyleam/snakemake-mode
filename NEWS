@@ -1,5 +1,9 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* unreleased
+
+- The 'multiext' built-in (new in Snakemake v5.8.2) is now recognized.
+
 * v1.6.0
 
 - Checkpoints (new in Snakemake v5.4) are now recognized.
