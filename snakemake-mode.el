@@ -431,20 +431,42 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
 
 ;;; Mode
 
-(defvar snakemake-font-lock-keywords
-  `((,snakemake-rule-or-subworkflow-re
-     (1 font-lock-keyword-face nil 'lax)
-     (2 font-lock-function-name-face nil 'lax)
-     (3 font-lock-keyword-face nil 'lax))
-    (,(snakemake-rx line-start (one-or-more space)
-                    (group field-key)
-                    (zero-or-more space) ":")
-     1 font-lock-type-face)
-    (,(snakemake-rx line-start (zero-or-more space)
-                    (group sm-command)
-                    (zero-or-more space) ":")
-     1 font-lock-keyword-face)
-    (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)))
+(defvar snakemake--font-lock-keywords
+    `((,snakemake-rule-or-subworkflow-re
+       (1 font-lock-keyword-face nil 'lax)
+       (2 font-lock-function-name-face nil 'lax)
+       (3 font-lock-keyword-face nil 'lax))
+      (,(snakemake-rx line-start (one-or-more space)
+                      (group field-key)
+                      (zero-or-more space) ":")
+       1 font-lock-type-face)
+      (,(snakemake-rx line-start (zero-or-more space)
+                      (group sm-command)
+                      (zero-or-more space) ":")
+       1 font-lock-keyword-face)
+      (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)))
+
+(if (bound-and-true-p python-font-lock-keywords-level-1)
+    (with-no-warnings
+      ;; In Emacs 27 `python-font-lock-keywords' was split up into
+      ;; different decoration levels.
+      (defvar snakemake-font-lock-keywords-level-1
+        (append snakemake--font-lock-keywords
+                python-font-lock-keywords-level-1))
+      (defvar snakemake-font-lock-keywords-level-2
+        (append snakemake--font-lock-keywords
+                python-font-lock-keywords-level-2))
+      (defvar snakemake-font-lock-keywords-maximum-decoration
+        (append snakemake--font-lock-keywords
+                python-font-lock-keywords-maximum-decoration))
+      (defvar snakemake-font-lock-keywords
+        ;; Mirrors `python-font-lock-keywords'.
+        '(snakemake-font-lock-keywords-level-1
+          snakemake-font-lock-keywords-level-1
+          snakemake-font-lock-keywords-level-2
+          snakemake-font-lock-keywords-maximum-decoration)))
+  (defvar snakemake-font-lock-keywords
+    (append snakemake--font-lock-keywords python-font-lock-keywords)))
 
 ;;;###autoload
 (define-derived-mode snakemake-mode python-mode "Snakemake"
@@ -462,7 +484,7 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
        #'snakemake-block-or-defun-name)
 
   (set (make-local-variable 'font-lock-defaults)
-       `(,(append snakemake-font-lock-keywords python-font-lock-keywords))))
+       (cons snakemake-font-lock-keywords (cdr font-lock-defaults))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("Snakefile\\'" . snakemake-mode))
