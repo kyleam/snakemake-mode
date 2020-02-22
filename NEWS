@@ -2,13 +2,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * v1.6.0
 
-** New features
-
 - Checkpoints (new in Snakemake v5.4) are now recognized.
 
 * v1.5.0
-
-** New features
 
 - ~snakemake-popup~ now includes ~--use-conda~.
 - Additional Snakemake keywords are now recognized: 'group' keyword
@@ -17,13 +13,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * v1.4.0
 
-** New features
-
 - The 'cwl' keyword (new in Snakemake v4.8.0), 'pipe' (new in
   Snakemake v5.2.0), 'directory' (new in Snakemake v5.2.0), and
   'ancient' built-in are now recognized.
-
-** Other changes
 
 - The minimum Emacs version is now specified as 24.5.  Although the
   previous specification was a looser "24", Snakemake's indentation
@@ -31,16 +23,12 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * v1.3.0
 
-** New features
-
 - The 'singularity' keyword (new in Snakemake v4.2.0) is now
   recognized.
 
 - ".smk" has been added as a suffix for Snakemake files.
 
 * v1.2.0
-
-** New features
 
 - ~snakemake-popup~ commands learned to call Snakemake through a
   terminal rather than through ~compile~.  This allows a persistent
@@ -50,20 +38,14 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * v1.1.0
 
-** New features
-
 - The 'conda' keyword (new in Snakemake v3.9.0) is now recognized.
 
 * v1.0.0
-
-** New features
 
 - The 'wildcard_constraints' keyword (new in Snakemake v3.8.0) is now
   recognized.
 
 * v0.5.0
-
-** New features
 
 - New command ~snakemake-graph-this-file~ displays the graph for the
   first rule of the current file.  Similar functionality is available
@@ -84,8 +66,6 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * v0.4.0
 
-** New features
-
 - New library snakemake.el provides a popup interface for running
   Snakemake from Emacs.
 
@@ -100,8 +80,6 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 - The 'wrapper' keyword is now recognized.
 
 * v0.3.0
-
-** New features
 
 - The keywords 'configfile', 'onsuccess', 'onerror', 'log', and
   'benchmark', 'script', 'shadow', as well as the 'touch' function,
@@ -123,8 +101,6 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 - Errors in Snakefiles are now highlighted in complilation buffers.
 
 * v0.2.0
-
-** New features
 
 - Both the executable and flags for the Snakemake ~compile-command~ are
   now customizable.
