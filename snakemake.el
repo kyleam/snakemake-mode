@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016-2020 Kyle Meyer
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
-;; URL: https://github.com/kyleam/snakemake-mode
+;; URL: https://git.kyleam.com/snakemake-mode/about
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

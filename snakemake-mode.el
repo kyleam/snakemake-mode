@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014-2020 Kyle Meyer
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
-;; URL: https://github.com/kyleam/snakemake-mode
+;; URL: https://git.kyleam.com/snakemake-mode/about
 ;; Keywords: tools
 ;; Version: 1.7.0
 ;; Package-Requires: ((emacs "24.5") (cl-lib "0.5") (magit-popup "2.4.0"))
