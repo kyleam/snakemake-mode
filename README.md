@@ -13,7 +13,7 @@ See the header of each file for more information.
 Both of these are available on MELPA under the
 [snakemake-mode package].
 
-[Snakemake]: https://bitbucket.org/snakemake/snakemake/wiki/Home
+[Snakemake]: https://snakemake.readthedocs.io/en/stable/
 [snakemake-mode.el]: https://git.kyleam.com/snakemake-mode/tree/snakemake-mode.el#n24
 [snakemake.el]: https://git.kyleam.com/snakemake-mode/tree/snakemake.el#n21
 [snakemake-mode package]: https://melpa.org/#/snakemake-mode
