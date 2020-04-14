@@ -16,3 +16,24 @@ Both of these are available on MELPA under the snakemake-mode package:
   https://melpa.org/#/snakemake-mode
 
 [^1]: https://snakemake.readthedocs.io/en/stable/
+
+
+Contributing
+------------
+
+Please send bug reports, feature requests, and other questions to
+
+    snakemake-mode@inbox.kyleam.com
+
+You can browse previous discussion and development via the
+public-inbox [^2] archives at
+
+    https://inbox.kyleam.com/snakemake-mode/
+
+If you'd like to contribute a patch, thank you!  Please send
+it to the same address.
+
+For more information on sending patches, visit
+<https://git-send-email.io/>.
+
+[^2]: https://public-inbox.org/README
