@@ -21,19 +21,14 @@ Both of these are available on MELPA under the snakemake-mode package:
 Contributing
 ------------
 
-Please send bug reports, feature requests, and other questions to
+Bug reports, patches, questions, and other feedback are welcome.
+Please send a plain-text email to
 
     snakemake-mode@inbox.kyleam.com
 
-You can browse previous discussion and development via the
+Messages that include this address are public and available as
 public-inbox [^2] archives at
 
     https://inbox.kyleam.com/snakemake-mode/
-
-If you'd like to contribute a patch, thank you!  Please send
-it to the same address.
-
-For more information on sending patches, visit
-<https://git-send-email.io/>.
 
 [^2]: https://public-inbox.org/README
