@@ -110,6 +110,7 @@
                         symbol-end))
       (sm-command . ,(rx symbol-start
                          (or "configfile"
+                             "envvars"
                              "include"
                              "localrules"
                              "onerror"

@@ -2,7 +2,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * master (unreleased)
 
-- The 'cache' keyword (new in Snakemake v5.12.0) is now recognized.
+- The 'envvars' directive (new in 5.11.0) and 'cache' keyword (new in
+  Snakemake v5.12.0) are now recognized.
 
 * v1.7.0
 
