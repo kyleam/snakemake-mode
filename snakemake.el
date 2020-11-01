@@ -85,7 +85,7 @@
 ;; an output file.
 ;;
 ;; [1] https://magit.vc/manual/magit-popup.html
-;; [2] https://bitbucket.org/snakemake/snakemake/wiki/Home
+;; [2] https://snakemake.github.io/
 
 ;;; Code:
 

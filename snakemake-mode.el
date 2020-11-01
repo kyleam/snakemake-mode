@@ -43,7 +43,7 @@
 ;; snakemake-mode.el also includes support for highlighting embedded R
 ;; code.  See the snakemake-mode-setup-mmm function documentation for how.
 ;;
-;; [1] https://bitbucket.org/snakemake/snakemake/wiki/browse/
+;; [1] https://snakemake.github.io/
 
 ;;; Code:
 
