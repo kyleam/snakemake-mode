@@ -85,7 +85,9 @@
                         (or "benchmark"
                             "cache"
                             "conda"
+                            "container"
                             "cwl"
+                            "envmodules"
                             "group"
                             "input"
                             "log"
@@ -110,6 +112,7 @@
                         symbol-end))
       (sm-command . ,(rx symbol-start
                          (or "configfile"
+                             "container"
                              "envvars"
                              "include"
                              "localrules"
