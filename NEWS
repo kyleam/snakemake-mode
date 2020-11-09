@@ -1,6 +1,6 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
-* master (unreleased)
+* v1.8.0
 
 - Additional Snakemake keywords are now recognized: 'envmodules' (new
   in Snakemake v5.9.0), 'envvars' (new in v5.11.0), 'container' (new
