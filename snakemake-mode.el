@@ -92,6 +92,7 @@
                             "input"
                             "log"
                             "message"
+                            "name"
                             "output"
                             "params"
                             "priority"
