@@ -20,7 +20,7 @@ test: | .deps
 	--eval "(ert-run-tests-batch-and-exit '(not (tag interactive)))"
 
 $(AUTOLOADS_FILE): $(els)
-	@$(BATCH) --eval \
+	@$(BATCH) -l autoload --eval \
 	"(let ((make-backup-files nil) \
 	       (generated-autoload-file \"$(CURDIR)/$@\")) \
 	  (update-directory-autoloads \"$(CURDIR)/\"))"
