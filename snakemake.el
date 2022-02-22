@@ -20,14 +20,13 @@
 
 ;;; Commentary:
 
-;; This package provides a popup interface, built on Magit's popup
-;; library [1], for calling Snakemake [2].  The main entry point is
-;; `snakemake-popup', which you should consider giving a global key
-;; binding.
+;; This package provides a Transient interface [1] for calling
+;; Snakemake [2].  The main entry point is the `snakemake' command,
+;; which you should consider giving a global key binding.
 ;;
-;; The popup currently includes four actions, all which lead to a
-;; Snakemake call.  What's different between the actions is how
-;; targets are selected.
+;; The `snakemake' transient currently includes four actions, all
+;; which lead to a Snakemake call.  What's different between the
+;; actions is how targets are selected.
 ;;
 ;; snakemake-build-targets-at-point
 ;;
@@ -78,13 +77,13 @@
 ;; terminal can be created with `snakemake-term-start', in which case
 ;; commands are sent there instead.
 ;;
-;; In addition to the popup commands, there are commands for showing
-;; and saving the dependency graph of a target.  The command
-;; `snakemake-graph' displays the graph in a buffer.  From this
-;; buffer, `snakemake-graph-save' can be called to save the graph to
-;; an output file.
+;; In addition to the commands in the transient, there are commands
+;; for showing and saving the dependency graph of a target.  The
+;; command `snakemake-graph' displays the graph in a buffer.  From
+;; this buffer, `snakemake-graph-save' can be called to save the graph
+;; to an output file.
 ;;
-;; [1] https://magit.vc/manual/magit-popup.html
+;; [1] https://magit.vc/manual/transient/
 ;; [2] https://snakemake.github.io/
 
 ;;; Code:
@@ -92,7 +91,7 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'term)
-(require 'magit-popup)
+(require 'transient)
 
 (require 'snakemake-mode)
 
@@ -672,7 +671,7 @@ send the command there.  Otherwise, run the command with
   "Build target(s) at point without any prompts.
 
 $ snakemake [ARGS] -- <targets>"
-  (interactive (list (snakemake-arguments)))
+  (interactive (list (transient-args 'snakemake)))
   (snakemake-build-targets
    (or (snakemake-file-targets-at-point 'check)
        (snakemake-rule-at-point 'target)
@@ -684,7 +683,7 @@ $ snakemake [ARGS] -- <targets>"
   "Build target file.
 
 $ snakemake [ARGS] -- <file>"
-  (interactive (list (snakemake-arguments)))
+  (interactive (list (transient-args 'snakemake)))
   (snakemake-build-targets
    (list (snakemake-read-file-target))
    args))
@@ -694,7 +693,7 @@ $ snakemake [ARGS] -- <file>"
   "Build target rule, prompting with known rules.
 
 $ snakemake [ARGS] -- <rule>"
-  (interactive (list (snakemake-arguments)))
+  (interactive (list (transient-args 'snakemake)))
   (snakemake-build-targets
    (list (snakemake-read-rule 'targets))
    args))
@@ -711,7 +710,7 @@ To start a terminal for the current Snakefile directory, run
 `\\[snakemake-term-start]'.
 
 $ snakemake [ARGS] -- <targets>"
-  (interactive (list (snakemake-arguments)))
+  (interactive (list (transient-args 'snakemake)))
   (let ((cmd (snakemake--make-command
               (or (snakemake-file-targets-at-point)
                   (snakemake-rule-at-point)
@@ -727,27 +726,40 @@ $ snakemake [ARGS] -- <targets>"
 
 (define-obsolete-function-alias 'snakemake-compile 'snakemake-build "1.2.0")
 
-;;;###autoload (autoload 'snakemake-popup "snakemake" nil t)
-(magit-define-popup snakemake-popup
-  "Popup console for running Snakemake."
-  :switches
-  '((?c "Use conda" "--use-conda")
-    (?f "Force" "--force")
-    (?i "Ignore temp()" "--notemp")
-    (?n "Dry run" "--dryrun")
-    (?p "Print shell commands" "-p")
-    (?r "Print reason" "--reason")
-    (?t "Touch files" "--touch"))
-  :options
-  '((?a "Allowed rules" "--allowed-rules " snakemake-read-rules)
-    (?j "Number of jobs" "-j"))
-  :actions
-  '((?c "Edit and run command" snakemake-build) nil nil
-    (?p "Build target at point" snakemake-build-targets-at-point)
-    (?f "Build file" snakemake-build-file-target)
-    (?r "Build rule" snakemake-build-rule-target))
-  :default-action 'snakemake-compile
-  :max-action-columns 3)
+(transient-define-argument snakemake:--allowed-rules ()
+  :description "Allowed rules"
+  :class 'transient-option
+  :key "-a"
+  :argument "--allowed-rules="
+  :reader 'snakemake-read-rules)
+
+(transient-define-argument snakemake:--jobs ()
+  :description "Number of jobs"
+  :class 'transient-option
+  :key "-j"
+  :argument "--jobs=")
+
+;;;###autoload (autoload 'snakemake "snakemake" nil t)
+(transient-define-prefix snakemake
+  "Transient for running Snakemake."
+  ["Arguments"
+   ("-c" "Use conda" "--use-conda")
+   ("-f" "Force" "--force")
+   ("-i" "Ignore temp()" "--notemp")
+   ("-n" "Dry run" "--dryrun")
+   ("-p" "Print shell commands" "-p")
+   ("-r" "Print reason" "--reason")
+   ("-t" "Touch files" "--touch")
+   (snakemake:--allowed-rules)
+   (snakemake:--jobs)]
+  ["Actions"
+   [("c" "Edit and run command" snakemake-build)]
+   [("p" "Build target at point" snakemake-build-targets-at-point)
+    ("f" "Build file" snakemake-build-file-target)
+    ("r" "Build rule" snakemake-build-rule-target)]])
+
+;;;###autoload
+(define-obsolete-function-alias 'snakemake-popup 'snakemake "2.0.0")
 
 (provide 'snakemake)
 ;;; snakemake.el ends here

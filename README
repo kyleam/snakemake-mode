@@ -7,7 +7,7 @@ This repo contains two Emacs libraries for Snakemake [^1].
   * snakemake-mode.el provides a major mode for editing Snakemake
     files.
 
-  * snakemake.el defines a popup interface for calling Snakemake.
+  * snakemake.el defines a transient [^2] for calling Snakemake.
 
 See the header of each file for more information.
 
@@ -16,6 +16,7 @@ Both of these are available on MELPA under the snakemake-mode package:
   https://melpa.org/#/snakemake-mode
 
 [^1]: https://snakemake.readthedocs.io/en/stable/
+[^2]: https://magit.vc/manual/transient/
 
 
 Contributing
@@ -27,8 +28,8 @@ Please send a plain-text email to
     snakemake-mode@inbox.kyleam.com
 
 Messages that include this address are public and available as
-public-inbox [^2] archives at
+public-inbox [^3] archives at
 
     https://inbox.kyleam.com/snakemake-mode/
 
-[^2]: https://public-inbox.org/README
+[^3]: https://public-inbox.org/README

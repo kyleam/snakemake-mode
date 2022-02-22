@@ -1,5 +1,5 @@
 
-LOAD_PATH = -L ../magit-popup -L ../dash.el -L .
+LOAD_PATH = -L ../transient/lisp -L ../dash.el -L .
 EMACS = emacs
 BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
 CURL := curl --silent

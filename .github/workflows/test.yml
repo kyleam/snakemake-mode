@@ -19,11 +19,11 @@ jobs:
       with:
         repository: magnars/dash.el
         path: dash.el
-    - name: Check out magit-popup
+    - name: Check out transient
       uses: actions/checkout@v2
       with:
-        repository: magit/magit-popup
-        path: magit-popup
+        repository: magit/transient
+        path: transient
     - name: Check out snakemake-mode
       uses: actions/checkout@v2
       with:
