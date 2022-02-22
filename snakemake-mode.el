@@ -6,7 +6,7 @@
 ;; URL: https://git.kyleam.com/snakemake-mode/about
 ;; Keywords: tools
 ;; Version: 1.8.0
-;; Package-Requires: ((emacs "24.5") (transient "0.3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

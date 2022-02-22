@@ -2,6 +2,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
 
 * master (unreleased)
 
+- Support for Emacs versions older than 26.1 has been dropped.
+
 - The Magit Popup command ~snakemake-popup~ has been rewritten as a
   transient, ~snakemake~.  snakemake.el now depends on Transient
   rather than Magit Popup.
