@@ -6,6 +6,10 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
   transient, ~snakemake~.  snakemake.el now depends on Transient
   rather than Magit Popup.
 
+- The ~--jobs~ argument in the ~snakemake~ transient has been replaced
+  by ~--cores~ to follow upstream changes.  ~--cores~ is bound to
+  ~-c~, and ~--use-conda~ has been moved from ~-c~ to ~-C~.
+
 - The 'name' keyword (new in Snakemake v5.31.0) is now recognized.
 
 * v1.8.0

@@ -733,17 +733,17 @@ $ snakemake [ARGS] -- <targets>"
   :argument "--allowed-rules="
   :reader 'snakemake-read-rules)
 
-(transient-define-argument snakemake:--jobs ()
-  :description "Number of jobs"
+(transient-define-argument snakemake:--cores ()
+  :description "Number of cores"
   :class 'transient-option
-  :key "-j"
-  :argument "--jobs=")
+  :key "-c"
+  :argument "--cores=")
 
 ;;;###autoload (autoload 'snakemake "snakemake" nil t)
 (transient-define-prefix snakemake
   "Transient for running Snakemake."
   ["Arguments"
-   ("-c" "Use conda" "--use-conda")
+   ("-C" "Use conda" "--use-conda")
    ("-f" "Force" "--force")
    ("-i" "Ignore temp()" "--notemp")
    ("-n" "Dry run" "--dryrun")
@@ -751,7 +751,7 @@ $ snakemake [ARGS] -- <targets>"
    ("-r" "Print reason" "--reason")
    ("-t" "Touch files" "--touch")
    (snakemake:--allowed-rules)
-   (snakemake:--jobs)]
+   (snakemake:--cores)]
   ["Actions"
    [("c" "Edit and run command" snakemake-build)]
    [("p" "Build target at point" snakemake-build-targets-at-point)
