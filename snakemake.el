@@ -742,6 +742,7 @@ $ snakemake [ARGS] -- <targets>"
 ;;;###autoload (autoload 'snakemake "snakemake" nil t)
 (transient-define-prefix snakemake
   "Transient for running Snakemake."
+  :value '("--cores=all")
   ["Arguments"
    ("-C" "Use conda" "--use-conda")
    ("-f" "Force" "--force")
