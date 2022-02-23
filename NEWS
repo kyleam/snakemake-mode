@@ -17,6 +17,9 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
   v6.15.0), 'handover' (new in Snakemake v6.2.0), 'name' (new in
   Snakemake v5.31.0), and 'notebook' (new in Snakemake v5.10.0).
 
+- The ~snakemake-compile~ command, marked obsolete in v1.2.0 in favor
+  of ~snakemake-build~, has been removed.
+
 * v1.8.0
 
 - Additional Snakemake keywords are now recognized: 'envmodules' (new

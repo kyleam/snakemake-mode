@@ -724,8 +724,6 @@ $ snakemake [ARGS] -- <targets>"
             (compilation-read-command t))
         (call-interactively #'compile)))))
 
-(define-obsolete-function-alias 'snakemake-compile 'snakemake-build "1.2.0")
-
 (transient-define-argument snakemake:--allowed-rules ()
   :description "Allowed rules"
   :class 'transient-option
