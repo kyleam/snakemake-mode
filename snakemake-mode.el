@@ -147,9 +147,7 @@
                              "touch"
                              "unpack"
                              "wildcards")
-                         symbol-end))
-      ;; Deprecated.  Use `sm-builtin' instead.
-      (sm-func . sm-builtin))
+                         symbol-end)))
     "Snakemake-specific sexps for `snakemake-rx'.")
 
   (defmacro snakemake-rx (&rest regexps)
