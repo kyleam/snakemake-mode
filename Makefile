@@ -28,3 +28,12 @@ $(AUTOLOADS_FILE): $(els)
 .PHONY: clean
 clean:
 	$(RM) $(elcs) $(AUTOLOADS_FILE)
+
+.PHONY: sign-tar
+sign-tar:
+	tag="$$(git describe --abbrev=0)"; \
+	object=$$(git archive --format tar \
+		    --prefix "snakemake-mode-$${tag#v}/" "$$tag" | \
+		  gpg --output - --armor --detach-sign | \
+		  git hash-object -w --stdin); \
+	git notes --ref=refs/notes/signatures/tar add -C "$$object" "$$tag"
