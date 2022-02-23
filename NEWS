@@ -12,6 +12,8 @@ NEWS -- history of user-visible changes             -*- mode: org; -*-
   by ~--cores~ to follow upstream changes.  ~--cores~ is bound to
   ~-c~, and ~--use-conda~ has been moved from ~-c~ to ~-C~.
 
+- Snakemake's new module syntax (added in v6.0) is now supported.
+
 - Additional Snakemake keywords are now recognized: 'containerized'
   (new in Snakemake v6.0.0), 'default_target' (new in Snakemake
   v6.15.0), 'handover' (new in Snakemake v6.2.0), 'name' (new in

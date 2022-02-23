@@ -75,8 +75,9 @@
 
 (eval-and-compile
   (defconst snakemake-rx-constituents
-    `((named-rule . ,(rx (and (group symbol-start
-                                     (or "checkpoint" "rule" "subworkflow"))
+    `((named-rule . ,(rx (and (group
+                               symbol-start
+                               (or "checkpoint" "module" "rule" "subworkflow"))
                               " "
                               (group (one-or-more
                                       (or (syntax word) (syntax symbol)))))))
@@ -452,6 +453,7 @@ embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe.")
                       (group sm-command)
                       (zero-or-more space) ":")
        1 font-lock-keyword-face)
+      (,(rx line-start (group "use rule ")) 1 font-lock-keyword-face)
       (,(snakemake-rx (group sm-builtin)) 1 font-lock-builtin-face)))
 
 (if (bound-and-true-p python-font-lock-keywords-level-1)
