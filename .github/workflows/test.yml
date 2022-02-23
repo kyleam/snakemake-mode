@@ -14,11 +14,6 @@ jobs:
       uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
-    - name: Check out dash
-      uses: actions/checkout@v2
-      with:
-        repository: magnars/dash.el
-        path: dash.el
     - name: Check out transient
       uses: actions/checkout@v2
       with:
