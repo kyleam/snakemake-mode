@@ -1,6 +1,6 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
-* master (unreleased)
+* v2.0.0
 
 - Support for Emacs versions older than 26.1 has been dropped.
 

@@ -5,7 +5,7 @@
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; URL: https://git.kyleam.com/snakemake-mode/about
 ;; Keywords: tools
-;; Version: 1.8.0
+;; Version: 2.0.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
