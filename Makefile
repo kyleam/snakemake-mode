@@ -2,7 +2,6 @@
 LOAD_PATH = -L ../transient/lisp -L .
 EMACS = emacs
 BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
-CURL := curl --silent
 
 els := snakemake.el snakemake-mode.el
 elcs := $(patsubst %.el, %.elc, $(els))
