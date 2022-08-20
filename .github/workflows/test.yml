@@ -34,5 +34,5 @@ jobs:
         pip install snakemake
     - name: Build snakemake-mode
       run: make -C snakemake-mode all
-    - name: Test snaekmake-mode
+    - name: Test snakemake-mode
       run: make -C snakemake-mode test
