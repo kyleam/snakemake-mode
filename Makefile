@@ -1,5 +1,5 @@
 
-LOAD_PATH = -L ../transient/lisp -L .
+LOAD_PATH = -L ../compat -L ../transient/lisp -L .
 EMACS = emacs
 BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
 
