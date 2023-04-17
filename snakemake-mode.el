@@ -93,6 +93,7 @@
                             "group"
                             "handover"
                             "input"
+                            "localrule"
                             "log"
                             "message"
                             "name"

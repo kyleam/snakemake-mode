@@ -1,5 +1,10 @@
 NEWS -- history of user-visible changes             -*- mode: org; -*-
 
+* master (unreleased)
+
+- The 'localrule' keyword (new in Snakemake v7.25.0) is now
+  recognized.
+
 * v2.0.0
 
 - Support for Emacs versions older than 26.1 has been dropped.
