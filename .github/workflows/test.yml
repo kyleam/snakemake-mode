@@ -17,7 +17,7 @@ jobs:
     - name: Check out compat
       uses: actions/checkout@v2
       with:
-        repository: phikal/compat.el
+        repository: emacs-compat/compat
         path: compat
     - name: Check out transient
       uses: actions/checkout@v2
