@@ -16,6 +16,14 @@ jobs:
       uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
+    - name: Check out seq
+      if: matrix.emacs_version == '26.1' || matrix.emacs_version == '27.2' || matrix.emacs_version == '28.2'
+      # Note: This relies on Transient's Makefile looking in this spot
+      # (relative to Transient checkout) by default.
+      run: |
+        git clone --branch=externals/seq --depth=1 \
+          https://git.savannah.gnu.org/git/emacs/elpa.git seq
+        echo SEQ_DIR=$PWD/seq >>$GITHUB_ENV
     - name: Check out compat
       uses: actions/checkout@v2
       with:
