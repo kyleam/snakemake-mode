@@ -407,7 +407,7 @@ For automatic highlighting of embedded regions, you need to set
 
   (unless (bound-and-true-p mmm-global-mode)
     (display-warning 'snakemake-mode "To get automatic syntax highlighting of
-embedded R, you need to set mmm-global-mode to a non-nil value such as 'maybe."))
+embedded R, you need to set mmm-global-mode to a non-nil value such as `maybe'."))
 
   (mmm-add-classes
    '((snakemake-R-call-double
