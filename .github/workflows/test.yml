@@ -25,22 +25,22 @@ jobs:
           https://git.savannah.gnu.org/git/emacs/elpa.git seq
         echo SEQ_DIR=$PWD/seq >>$GITHUB_ENV
     - name: Check out compat
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: emacs-compat/compat
         path: compat
     - name: Check out transient
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: magit/transient
         path: transient
     - name: Check out snakemake-mode
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: kyleam/snakemake-mode
         path: snakemake-mode
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: 3.12
     - name: Install Snakemake
