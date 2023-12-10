@@ -41,6 +41,8 @@ jobs:
         pip install snakemake
     - name: Build compat
       run: make -C compat compile
+    - name: Build transient
+      run: make -C transient lisp
     - name: Build snakemake-mode
       run: make -C snakemake-mode all
     - name: Test snakemake-mode
