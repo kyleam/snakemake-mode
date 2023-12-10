@@ -43,6 +43,10 @@ jobs:
       run: make -C compat compile
     - name: Build transient
       run: make -C transient lisp
+    - name: Set envvars for dependencies
+      run: |
+        echo "COMPAT_DIR=$PWD/compat" >>$GITHUB_ENV
+        echo "TRANSIENT_DIR=$PWD/transient/lisp" >>$GITHUB_ENV
     - name: Build snakemake-mode
       run: make -C snakemake-mode all
     - name: Test snakemake-mode

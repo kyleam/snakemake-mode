@@ -1,5 +1,10 @@
 
-LOAD_PATH = -L ../compat -L ../transient/lisp -L .
+-include config.mk
+
+COMPAT_DIR ?= /dev/null
+TRANSIENT_DIR ?= /dev/null
+
+LOAD_PATH = -L $(COMPAT_DIR) -L $(TRANSIENT_DIR) -L .
 EMACS = emacs
 BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
 
