@@ -167,8 +167,8 @@ Used by `snakemake-region-file-targets'."
 
 (defcustom snakemake-dot-program "dot"
   "Program used to save the graph with `snakemake-graph-save'.
-This program must have an option '-T' that can be used to specify
-the output type.  See 'man dot'."
+This program must have an option `-T' that can be used to specify
+the output type.  See `man dot'."
   :type 'string
   :package-version '(snakemake-mode . "0.4.0"))
 
@@ -595,7 +595,7 @@ Snakemake-graph mode is a minor mode that provides a key,
                 2 1)))
 
 (defun snakemake-compile-targets (targets args)
-  "Run non-interactive `compile' with 'snakemake [ARGS] -- TARGETS'."
+  "Run non-interactive `compile' with `snakemake [ARGS] -- TARGETS'."
   (let ((cmd (snakemake--make-command targets args)))
     (compile cmd)
     (push cmd compile-history)))
@@ -628,7 +628,7 @@ could point to a script that runs
 
     guix environment --pure -m manifest.scm --ad-hoc snakemake
 
-The file 'guix-snakemake-environment' in Snakemake mode's source
+The file guix-snakemake-environment in Snakemake mode's source
 directory can be used for this purpose."
   (interactive)
   (let ((default-directory (snakemake-snakefile-directory)))
@@ -649,13 +649,13 @@ directory can be used for this purpose."
       (goto-char (process-mark proc)))))
 
 (defun snakemake-term-build-targets (targets args)
-  "Send 'snakemake [ARGS] -- TARGETS' to the terminal."
+  "Send `snakemake [ARGS] -- TARGETS' to the terminal."
   (snakemake-term-send (snakemake--make-command targets args)))
 
 ;;;; General interface
 
 (defun snakemake-build-targets (targets args)
-  "Run 'snakemake [ARGS] -- TARGETS'.
+  "Run `snakemake [ARGS] -- TARGETS'.
 If a terminal is associated with the current Snakefile directory,
 send the command there.  Otherwise, run the command with
 `compile'."
