@@ -23,7 +23,7 @@ jobs:
       run: |
         git clone --branch=externals/seq --depth=1 \
           https://git.savannah.gnu.org/git/emacs/elpa.git seq
-        echo SEQ_DIR=$PWD/seq >>$GITHUB_ENV
+        echo "SEQ_DIR=$PWD/seq" >>$GITHUB_ENV
     - name: Check out compat
       uses: actions/checkout@v4
       with:
