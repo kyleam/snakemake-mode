@@ -6,7 +6,7 @@
 ;; URL: https://git.kyleam.com/snakemake-mode/about
 ;; Keywords: tools
 ;; Version: 2.0.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "27.1") (transient "0.3.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -73,95 +73,85 @@
 
 ;;; Regexp
 
-(eval-and-compile
-  (defconst snakemake-rx-constituents
-    `((named-rule . ,(rx (and (group
-                               symbol-start
-                               (or "checkpoint" "module" "rule" "subworkflow"))
-                              " "
-                              (group (one-or-more
-                                      (or (syntax word) (syntax symbol)))))))
-      (anon-rule . ,(rx symbol-start "rule"))
-      (field-key . ,(rx symbol-start
-                        (or "benchmark"
-                            "cache"
-                            "conda"
-                            "container"
-                            "cwl"
-                            "default_target"
-                            "envmodules"
-                            "group"
-                            "handover"
-                            "input"
-                            "localrule"
-                            "log"
-                            "message"
-                            "name"
-                            "notebook"
-                            "output"
-                            "params"
-                            "priority"
-                            "resources"
-                            "run"
-                            "script"
-                            "shadow"
-                            "shell"
-                            "singularity"
-                            "threads"
-                            "version"
-                            "wildcard_constraints"
-                            "wrapper"
-                            ;; Keys for subworkflow blocks
-                            "configfile"
-                            "snakefile"
-                            "workdir")
-                        symbol-end))
-      (sm-command . ,(rx symbol-start
-                         (or "configfile"
-                             "container"
-                             "containerized"
-                             "envvars"
-                             "include"
-                             "localrules"
-                             "onerror"
-                             "onsuccess"
-                             "report"
-                             "ruleorder"
-                             "singularity"
-                             "wildcard_constraints"
-                             "workdir")
-                         symbol-end))
-      (sm-builtin . ,(rx symbol-start
-                         (or "ancient"
-                             "checkpoints"
-                             "directory"
-                             "dynamic"
-                             "expand"
-                             "input"
-                             "multiext"
-                             "output"
-                             "params"
-                             "pipe"
-                             "protected"
-                             "report"
-                             "shell"
-                             "temp"
-                             "touch"
-                             "unpack"
-                             "wildcards")
-                         symbol-end)))
-    "Snakemake-specific sexps for `snakemake-rx'.")
-
-  (defmacro snakemake-rx (&rest regexps)
-    "Specialized `rx' for Snakemake mode."
-    ;; Modified from `python-rx'.
-    (let ((rx-constituents (append snakemake-rx-constituents rx-constituents)))
-      (cond ((null regexps)
-             (error "No regexp"))
-            ((cdr regexps)
-             (rx-to-string `(and ,@regexps) t))
-            (t
-             (rx-to-string (car regexps) t))))))
+(defmacro snakemake-rx (&rest regexps)
+  "Specialized `rx' for Snakemake mode."
+  ;; Modified from `python-rx'.
+  `(rx-let ((named-rule (and (group
+                              symbol-start
+                              (or "checkpoint" "module" "rule" "subworkflow"))
+                             " "
+                             (group (one-or-more
+                                     (or (syntax word) (syntax symbol))))))
+            (anon-rule (and symbol-start "rule"))
+            (field-key (and symbol-start
+                            (or "benchmark"
+                                "cache"
+                                "conda"
+                                "container"
+                                "cwl"
+                                "default_target"
+                                "envmodules"
+                                "group"
+                                "handover"
+                                "input"
+                                "localrule"
+                                "log"
+                                "message"
+                                "name"
+                                "notebook"
+                                "output"
+                                "params"
+                                "priority"
+                                "resources"
+                                "run"
+                                "script"
+                                "shadow"
+                                "shell"
+                                "singularity"
+                                "threads"
+                                "version"
+                                "wildcard_constraints"
+                                "wrapper"
+                                ;; Keys for subworkflow blocks
+                                "configfile"
+                                "snakefile"
+                                "workdir")
+                            symbol-end))
+            (sm-command (and symbol-start
+                             (or "configfile"
+                                 "container"
+                                 "containerized"
+                                 "envvars"
+                                 "include"
+                                 "localrules"
+                                 "onerror"
+                                 "onsuccess"
+                                 "report"
+                                 "ruleorder"
+                                 "singularity"
+                                 "wildcard_constraints"
+                                 "workdir")
+                             symbol-end))
+            (sm-builtin (and symbol-start
+                             (or "ancient"
+                                 "checkpoints"
+                                 "directory"
+                                 "dynamic"
+                                 "expand"
+                                 "input"
+                                 "multiext"
+                                 "output"
+                                 "params"
+                                 "pipe"
+                                 "protected"
+                                 "report"
+                                 "shell"
+                                 "temp"
+                                 "touch"
+                                 "unpack"
+                                 "wildcards")
+                             symbol-end)))
+     (rx ,@regexps)))
 
 (defconst snakemake-rule-or-subworkflow-re
   (snakemake-rx line-start (zero-or-more space)
